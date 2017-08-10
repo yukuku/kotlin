@@ -164,6 +164,7 @@ class DiagnosticReporterByTrackingStrategy(
                     if (constraintError.typeVariable == null) {
                         trace.report(Errors.TYPE_MISMATCH.on(deparenthesized, constraintError.upperType, constraintError.lowerType))
                     }
+                    trace.markAsReported()
                 }
                 (position as? ExplicitTypeParameterConstraintPosition)?.let {
                     val typeArgumentReference = (it.typeArgument as SimpleTypeArgumentImpl).typeReference
