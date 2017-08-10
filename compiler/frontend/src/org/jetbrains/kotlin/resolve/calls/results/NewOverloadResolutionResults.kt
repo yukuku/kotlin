@@ -29,7 +29,7 @@ abstract class AbstractOverloadResolutionResults<D : CallableDescriptor> : Overl
 }
 
 class SingleOverloadResolutionResult<D: CallableDescriptor>(val result: ResolvedCall<D>) : AbstractOverloadResolutionResults<D>() {
-    override fun getAllCandidates(): Collection<ResolvedCall<D>>? = null
+    override fun getAllCandidates(): Collection<ResolvedCall<D>>? = listOf(result)
     override fun getResultingCalls(): Collection<ResolvedCall<D>> = listOf(result)
     override fun getResultingCall() = result
 
@@ -54,7 +54,7 @@ open class NameNotFoundResolutionResult<D : CallableDescriptor> : AbstractOverlo
 class ManyCandidates<D : CallableDescriptor>(
         val candidates: Collection<ResolvedCall<D>>
 ) : AbstractOverloadResolutionResults<D>() {
-    override fun getAllCandidates(): Collection<ResolvedCall<D>>? = null
+    override fun getAllCandidates(): Collection<ResolvedCall<D>>? = candidates
     override fun getResultingCalls(): Collection<ResolvedCall<D>> = candidates
     override fun getResultingCall() = error("Many candidates")
     override fun getResultingDescriptor() = error("Many candidates")
