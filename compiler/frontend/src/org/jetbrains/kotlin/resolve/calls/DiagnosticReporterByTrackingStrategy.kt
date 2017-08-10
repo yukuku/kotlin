@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.calls
 
 import org.jetbrains.kotlin.builtins.functions.FunctionInvokeDescriptor
+import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.diagnostics.Errors.BadNamedArgumentsTarget.INVOKE_ON_FUNCTION_TYPE
 import org.jetbrains.kotlin.diagnostics.Errors.BadNamedArgumentsTarget.NON_KOTLIN_FUNCTION
@@ -159,9 +160,10 @@ class DiagnosticReporterByTrackingStrategy(
                 argument?.let {
                     val expression = it.psiExpression ?: return
                     val deparenthesized = KtPsiUtil.safeDeparenthesize(expression)
-                    reportConstantTypeMismatch(constraintError, deparenthesized)
-
-                    trace.markAsReported()
+                    if (reportConstantTypeMismatch(constraintError, deparenthesized)) return
+                    if (constraintError.typeVariable == null) {
+                        trace.report(Errors.TYPE_MISMATCH.on(deparenthesized, constraintError.upperType, constraintError.lowerType))
+                    }
                 }
                 (position as? ExplicitTypeParameterConstraintPosition)?.let {
                     val typeArgumentReference = (it.typeArgument as SimpleTypeArgumentImpl).typeReference
