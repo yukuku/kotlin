@@ -22,5 +22,5 @@ class In<in T>(t: T)
 fun <T> contra(a: In<T>, b: In<T>): T = null!!
 
 fun testContra(d: dynamic) {
-    contra(In(d), In("")).get(0) // not a dynamic call
+    contra(In(d), In("")).<!DEBUG_INFO_DYNAMIC!>get<!>(0) // not a dynamic call
 }
