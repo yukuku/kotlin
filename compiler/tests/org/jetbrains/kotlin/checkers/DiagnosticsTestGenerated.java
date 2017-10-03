@@ -4498,6 +4498,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("catchInnerClassesOfGenerics.kt")
+            public void testCatchInnerClassesOfGenerics() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/catchInnerClassesOfGenerics.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("catchInnerClassesOfGenerics_deprecation.kt")
+            public void testCatchInnerClassesOfGenerics_deprecation() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/catchInnerClassesOfGenerics_deprecation.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("catchWithDefault.kt")
             public void testCatchWithDefault() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/catchWithDefault.kt");
