@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.storage.NotNullLazyValue
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.types.*
 
@@ -37,9 +38,9 @@ abstract class AbstractTypeAliasDescriptor(
     protected abstract val storageManager: StorageManager
 
     // TODO kotlinize some interfaces
-    private lateinit var declaredTypeParametersImpl: List<TypeParameterDescriptor>
+    private lateinit var declaredTypeParametersImpl: NotNullLazyValue<List<TypeParameterDescriptor>>
 
-    fun initialize(declaredTypeParameters: List<TypeParameterDescriptor>) {
+    fun initialize(declaredTypeParameters: NotNullLazyValue<List<TypeParameterDescriptor>>) {
         this.declaredTypeParametersImpl = declaredTypeParameters
     }
 
@@ -68,7 +69,7 @@ abstract class AbstractTypeAliasDescriptor(
     }
 
     override fun getDeclaredTypeParameters(): List<TypeParameterDescriptor> =
-            declaredTypeParametersImpl
+            declaredTypeParametersImpl()
 
     override fun getModality() = Modality.FINAL
 

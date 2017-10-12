@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ class LazyTypeAliasDescriptor(
     override fun isActual(): Boolean = isActual
 
     fun initialize(
-            declaredTypeParameters: List<TypeParameterDescriptor>,
+            declaredTypeParameters: NotNullLazyValue<List<TypeParameterDescriptor>>,
             lazyUnderlyingType: NotNullLazyValue<SimpleType>,
             lazyExpandedType: NotNullLazyValue<SimpleType>
     ) {
@@ -87,20 +87,27 @@ class LazyTypeAliasDescriptor(
             declaredTypeParameters: List<TypeParameterDescriptor>,
             underlyingType: SimpleType,
             expandedType: SimpleType
-    ) = initialize(declaredTypeParameters, storageManager.createLazyValue { underlyingType }, storageManager.createLazyValue { expandedType })
+    ) = initialize(
+            storageManager.createLazyValue { declaredTypeParameters },
+            storageManager.createLazyValue { underlyingType },
+            storageManager.createLazyValue { expandedType }
+    )
 
     override fun substitute(substitutor: TypeSubstitutor): TypeAliasDescriptor {
         if (substitutor.isEmpty) return this
         val substituted = LazyTypeAliasDescriptor(storageManager, trace,
                                                   containingDeclaration, annotations, name, source, visibility)
-        substituted.initialize(declaredTypeParameters,
-                                   storageManager.createLazyValue {
-                                       substitutor.substitute(underlyingType, Variance.INVARIANT)!!.asSimpleType()
-                                   },
-                                   storageManager.createLazyValue {
-                                       substitutor.substitute(expandedType, Variance.INVARIANT)!!.asSimpleType()
-                                   }
-                               )
+        substituted.initialize(
+                storageManager.createLazyValue {
+                    declaredTypeParameters
+                },
+                storageManager.createLazyValue {
+                    substitutor.substitute(underlyingType, Variance.INVARIANT)!!.asSimpleType()
+                },
+                storageManager.createLazyValue {
+                    substitutor.substitute(expandedType, Variance.INVARIANT)!!.asSimpleType()
+                }
+        )
         return substituted
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,18 +188,23 @@ class DeserializedTypeAliasDescriptor(
     override lateinit var expandedType: SimpleType private set
     private lateinit var typeConstructorParameters: List<TypeParameterDescriptor>
     private lateinit var defaultTypeImpl: SimpleType private set
+    private lateinit var eagerDeclaredTypeParameters: List<TypeParameterDescriptor> private set
 
     fun initialize(
             declaredTypeParameters: List<TypeParameterDescriptor>,
             underlyingType: SimpleType,
             expandedType: SimpleType
     ) {
-        initialize(declaredTypeParameters)
+        this.eagerDeclaredTypeParameters = declaredTypeParameters
         this.underlyingType = underlyingType
         this.expandedType = expandedType
         typeConstructorParameters = computeConstructorTypeParameters()
         defaultTypeImpl = computeDefaultType()
         constructors = getTypeAliasConstructors()
+    }
+
+    override fun getDeclaredTypeParameters(): List<TypeParameterDescriptor> {
+        return eagerDeclaredTypeParameters
     }
 
     override val classDescriptor: ClassDescriptor?

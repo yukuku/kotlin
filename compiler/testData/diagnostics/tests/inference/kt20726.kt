@@ -1,0 +1,1 @@
+typealias sameName<T : sameName>

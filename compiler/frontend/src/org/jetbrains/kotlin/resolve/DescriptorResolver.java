@@ -704,49 +704,31 @@ public class DescriptorResolver {
         LazyTypeAliasDescriptor typeAliasDescriptor = LazyTypeAliasDescriptor.create(
                 storageManager, trace, containingDeclaration, allAnnotations, name, sourceElement, visibility);
 
-        List<TypeParameterDescriptorImpl> typeParameterDescriptors;
-        LexicalScope scopeWithTypeParameters;
-        {
-            List<KtTypeParameter> typeParameters = typeAlias.getTypeParameters();
-            if (typeParameters.isEmpty()) {
-                scopeWithTypeParameters = scope;
-                typeParameterDescriptors = Collections.emptyList();
-            }
-            else {
-                LexicalWritableScope writableScope = new LexicalWritableScope(
-                        scope, containingDeclaration, false, new TraceBasedLocalRedeclarationChecker(trace, overloadChecker),
-                        LexicalScopeKind.TYPE_ALIAS_HEADER);
-                typeParameterDescriptors = resolveTypeParametersForDescriptor(
-                        typeAliasDescriptor, writableScope, scope, typeParameters, trace);
-                writableScope.freeze();
-                checkNoGenericBoundsOnTypeAliasParameters(typeAlias, trace);
-                resolveGenericBounds(typeAlias, typeAliasDescriptor, writableScope, typeParameterDescriptors, trace);
-                scopeWithTypeParameters = writableScope;
-            }
-        }
-
         KtTypeReference typeReference = typeAlias.getTypeReference();
         if (typeReference == null) {
             typeAliasDescriptor.initialize(
-                    typeParameterDescriptors,
+                    Collections.emptyList(),
                     ErrorUtils.createErrorType(name.asString()),
                     ErrorUtils.createErrorType(name.asString()));
         }
         else if (!languageVersionSettings.supportsFeature(LanguageFeature.TypeAliases)) {
-            typeResolver.resolveAbbreviatedType(scopeWithTypeParameters, typeReference, trace);
+            typeResolver.resolveAbbreviatedType(scope, typeReference, trace);
             PsiElement typeAliasKeyword = typeAlias.getTypeAliasKeyword();
             trace.report(UNSUPPORTED_FEATURE.on(typeAliasKeyword != null ? typeAliasKeyword : typeAlias,
                                                 TuplesKt.to(LanguageFeature.TypeAliases, languageVersionSettings)));
             typeAliasDescriptor.initialize(
-                    typeParameterDescriptors,
+                    Collections.emptyList(),
                     ErrorUtils.createErrorType(name.asString()),
                     ErrorUtils.createErrorType(name.asString()));
         }
         else {
             typeAliasDescriptor.initialize(
-                    typeParameterDescriptors,
                     storageManager.createRecursionTolerantLazyValue(
-                            () -> typeResolver.resolveAbbreviatedType(scopeWithTypeParameters, typeReference, trace),
+                            () -> resolveTypeParameters(containingDeclaration, scope, typeAlias, trace, typeAliasDescriptor),
+                            Collections.emptyList()
+                    ),
+                    storageManager.createRecursionTolerantLazyValue(
+                            () -> typeResolver.resolveAbbreviatedType(scope, typeReference, trace),
                             ErrorUtils.createErrorType("Recursive type alias expansion for " + typeAliasDescriptor.getName().asString())
                     ),
                     storageManager.createRecursionTolerantLazyValue(
@@ -758,6 +740,25 @@ public class DescriptorResolver {
 
         trace.record(TYPE_ALIAS, typeAlias, typeAliasDescriptor);
         return typeAliasDescriptor;
+    }
+
+    private List<TypeParameterDescriptorImpl> resolveTypeParameters(
+            @NotNull DeclarationDescriptor containingDeclaration,
+            @NotNull LexicalScope scope,
+            @NotNull KtTypeAlias typeAlias,
+            @NotNull BindingTrace trace,
+            @NotNull LazyTypeAliasDescriptor typeAliasDescriptor
+    ) {
+        List<KtTypeParameter> typeParameters = typeAlias.getTypeParameters();
+        LexicalWritableScope writableScope = new LexicalWritableScope(
+                scope, containingDeclaration, false, new TraceBasedLocalRedeclarationChecker(trace, overloadChecker),
+                LexicalScopeKind.TYPE_ALIAS_HEADER);
+        List<TypeParameterDescriptorImpl> typeParameterDescriptors = resolveTypeParametersForDescriptor(
+                typeAliasDescriptor, writableScope, scope, typeParameters, trace);
+        writableScope.freeze();
+        checkNoGenericBoundsOnTypeAliasParameters(typeAlias, trace);
+        resolveGenericBounds(typeAlias, typeAliasDescriptor, writableScope, typeParameterDescriptors, trace);
+        return typeParameterDescriptors;
     }
 
     private static void checkNoGenericBoundsOnTypeAliasParameters(@NotNull KtTypeAlias typeAlias, @NotNull BindingTrace trace) {
