@@ -1,9 +1,12 @@
 package
 
+public val a: kotlin.Int
+public val b: kotlin.Int
 public external val baz: kotlin.Int
 public external val boo: kotlin.Int
 public external fun bar(): kotlin.Unit
 public external fun foo(): kotlin.Unit
+public fun testRefs(/*0*/ t: T, /*1*/ c: C): kotlin.Unit
 
 public final external class C {
     public constructor C()

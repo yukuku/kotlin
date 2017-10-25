@@ -353,10 +353,13 @@ class ControlFlowInformationProvider private constructor(
                         else -> {}
                     }
                 }
-                is VariableDescriptor ->
-                    if (!variableDescriptor.isLateInit) {
+                is VariableDescriptor -> {
+                    if (!variableDescriptor.isLateInit /*&&
+                        !(variableDescriptor is MemberDescriptor && variableDescriptor.isEffectivelyExternal())*/
+                    ) {
                         report(Errors.UNINITIALIZED_VARIABLE.on(element, variableDescriptor), ctxt)
                     }
+                }
             }
         }
     }

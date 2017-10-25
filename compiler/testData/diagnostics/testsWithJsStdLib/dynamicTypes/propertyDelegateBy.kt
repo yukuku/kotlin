@@ -1,11 +1,16 @@
 // !DIAGNOSTICS: -UNUSED_VARIABLE
 
 external val x: dynamic
+external val x1: Int
 
 var y: Any? by <!PROPERTY_DELEGATION_BY_DYNAMIC!>x<!>
+var yd = x
+var y1: Any? by lazy { x1 }
+var y2 = x1
 
-fun foo() {
-    val a: Any by <!PROPERTY_DELEGATION_BY_DYNAMIC!>x<!>
+fun fooo() {
+    x
+    x1
 }
 
 class C {
