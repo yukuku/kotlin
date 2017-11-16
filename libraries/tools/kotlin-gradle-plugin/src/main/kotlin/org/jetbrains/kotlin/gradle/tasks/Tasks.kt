@@ -238,6 +238,7 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractKo
     }
 }
 
+@CacheableTask
 open class KotlinCompile : AbstractKotlinCompile<K2JVMCompilerArguments>(), KotlinJvmCompile {
     @get:Internal
     internal var parentKotlinOptionsImpl: KotlinJvmOptionsImpl? = null
@@ -428,6 +429,7 @@ open class KotlinCompile : AbstractKotlinCompile<K2JVMCompilerArguments>(), Kotl
     }
 }
 
+@CacheableTask
 open class Kotlin2JsCompile() : AbstractKotlinCompile<K2JSCompilerArguments>(), KotlinJsCompile {
     private val kotlinOptionsImpl = KotlinJsOptionsImpl()
 
