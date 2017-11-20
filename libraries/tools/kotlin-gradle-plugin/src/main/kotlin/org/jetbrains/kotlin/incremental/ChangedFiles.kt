@@ -17,11 +17,13 @@
 package org.jetbrains.kotlin.incremental
 
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs
+import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import java.io.File
 import java.util.*
 
-internal fun ChangedFiles(taskInputs: IncrementalTaskInputs): ChangedFiles {
-    if (!taskInputs.isIncremental) return ChangedFiles.Unknown()
+internal fun AbstractKotlinCompile<*>.ChangedFiles(taskInputs: IncrementalTaskInputs): ChangedFiles {
+    if (!taskInputs.isIncremental || !hasFilesInTaskBuildDirectory())
+        return ChangedFiles.Unknown()
 
     val modified = ArrayList<File>()
     val removed = ArrayList<File>()

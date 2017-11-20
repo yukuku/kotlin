@@ -236,6 +236,11 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractKo
         compilerArgs.pluginClasspaths = pluginClasspath.toTypedArray()
         compilerArgs.pluginOptions = pluginOptions.arguments.toTypedArray()
     }
+
+    internal fun hasFilesInTaskBuildDirectory(): Boolean {
+        val taskBuildDir = taskBuildDirectory
+        return taskBuildDir.walk().any { it != taskBuildDir && it.isFile }
+    }
 }
 
 @CacheableTask
