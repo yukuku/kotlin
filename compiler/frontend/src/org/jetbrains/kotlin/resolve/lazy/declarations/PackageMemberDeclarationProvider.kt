@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.resolve.lazy.declarations
 
-import org.jetbrains.annotations.ReadOnly
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name

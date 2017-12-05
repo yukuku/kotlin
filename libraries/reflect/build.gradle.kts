@@ -27,15 +27,9 @@ callGroovy("configureJavaOnlyJvm6Project", this)
 publish()
 
 val core = "$rootDir/core"
-val annotationsSrc = "$buildDir/annotations"
 val relocatedCoreSrc = "$buildDir/core-relocated"
 val libsDir = property("libsDir")
 
-sourceSets {
-    "main" {
-        java.srcDir(annotationsSrc)
-    }
-}
 
 val proguardDeps by configurations.creating
 val shadows by configurations.creating {
@@ -48,6 +42,7 @@ dependencies {
     compile(project(":kotlin-stdlib"))
 
     proguardDeps(project(":kotlin-stdlib"))
+    proguardDeps(project(":kotlin-annotations-jvm"))
     proguardDeps(files(firstFromJavaHomeThatExists("lib/rt.jar", "../Classes/classes.jar")))
 
     shadows(project(":kotlin-reflect-api"))
@@ -59,18 +54,6 @@ dependencies {
     shadows("javax.inject:javax.inject:1")
     shadows(project(":custom-dependencies:protobuf-lite", configuration = "default"))
 }
-
-val copyAnnotations by task<Sync> {
-    // copy just two missing annotations
-    from("$core/runtime.jvm/src") {
-        include("**/Mutable.java")
-        include("**/ReadOnly.java")
-    }
-    into(annotationsSrc)
-    includeEmptyDirs = false
-}
-
-tasks.getByName("compileJava").dependsOn(copyAnnotations)
 
 class KotlinModuleShadowTransformer(private val logger: Logger) : Transformer {
     @Suppress("ArrayInDataClass")
