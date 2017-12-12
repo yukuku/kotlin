@@ -86,7 +86,8 @@ dependencies {
     sideJars(projectDist(":kotlin-reflect"))
     sideJars(commonDep("io.javaslang", "javaslang"))
     sideJars(commonDep("javax.inject"))
-    sideJars(preloadedDeps("markdown", "kotlinx-coroutines-core", "kotlinx-coroutines-jdk8"))
+    sideJars(preloadedDeps("kotlinx-coroutines-core", "kotlinx-coroutines-jdk8"))
+    sideJars(commonDep("org.jetbrains", "markdown"))
 }
 
 val jar = runtimeJar(task<ShadowJar>("shadowJar")) {

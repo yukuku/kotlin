@@ -41,7 +41,8 @@ dependencies {
     compile(ideaPluginDeps("properties", plugin = "properties"))
     compile(ideaPluginDeps("java-i18n", plugin = "java-i18n"))
 
-    compile(preloadedDeps("markdown", "kotlinx-coroutines-core"))
+    compile(preloadedDeps("kotlinx-coroutines-core"))
+    compile(commonDep("org.jetbrains", "markdown"))
 
     testCompile(project(":kotlin-test:kotlin-test-junit"))
     testCompile(projectTests(":compiler:tests-common"))
