@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.js.config;
 
+import com.google.gwt.dev.js.ThrowExceptionOnErrorReporter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.StandardFileSystems;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -23,9 +24,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.util.SmartList;
 import com.intellij.util.io.URLUtil;
-import kotlin.Unit;
 import kotlin.collections.CollectionsKt;
-import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.config.*;
@@ -229,7 +228,7 @@ public class JsConfig {
 
     @NotNull
     public List<JsModuleDescriptor<ModuleDescriptorImpl>> getModuleDescriptors() {
-        checkInitialized();
+        init();
         if (moduleDescriptors != null) return moduleDescriptors;
 
         moduleDescriptors = new SmartList<>();
@@ -274,7 +273,7 @@ public class JsConfig {
 
     @NotNull
     public List<JsModuleDescriptor<ModuleDescriptorImpl>> getFriendModuleDescriptors() {
-        checkInitialized();
+        init();
         if (friendModuleDescriptors != null) return friendModuleDescriptors;
 
         friendModuleDescriptors = new SmartList<>();
@@ -288,8 +287,17 @@ public class JsConfig {
         return friendModuleDescriptors;
     }
 
-    private void checkInitialized() {
-        assert initialized: "JSConfig was not initialized";
+    private void init() {
+        if (!initialized) {
+            JsConfig.Reporter reporter = new Reporter() {
+                @Override
+                public void error(@NotNull String message) {
+                    throw new IllegalStateException(message);
+                }
+            };
+
+            checkLibFilesAndReportErrors(reporter);
+        }
     }
 
     private final IdentityHashMap<KotlinJavascriptMetadata, JsModuleDescriptor<ModuleDescriptorImpl>> factoryMap = new IdentityHashMap<>();
