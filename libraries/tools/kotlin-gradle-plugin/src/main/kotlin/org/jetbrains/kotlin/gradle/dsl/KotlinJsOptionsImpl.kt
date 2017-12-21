@@ -23,6 +23,10 @@ internal class KotlinJsOptionsImpl : KotlinJsOptionsBase() {
 
     override fun updateArguments(args: K2JSCompilerArguments) {
         super.updateArguments(args)
+        if (!sourceMap) {
+            // Avoid compiler warning about sourceMapEmbedSources being meaningless with sourceMap disabled:
+            args.sourceMapEmbedSources = null
+        }
         copyFreeCompilerArgsToArgs(args)
     }
 }
