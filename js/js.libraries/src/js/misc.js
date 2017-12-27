@@ -24,13 +24,26 @@ Kotlin.compareTo = function (a, b) {
         return Kotlin.primitiveCompareTo(a, b.charCodeAt(0));
     }
     if (typeA === "number" || typeA === "string" || typeA === "boolean") {
-        return Kotlin.primitiveCompareTo(a, b);
+        return Kotlin.doubleCompareTo(a, b);
     }
     return a.compareTo_11rb$(b);
 };
 
 Kotlin.primitiveCompareTo = function (a, b) {
     return a < b ? -1 : a > b ? 1 : 0;
+};
+
+Kotlin.doubleCompareTo = function (a, b) {
+    if (a < b) {
+        return -1;
+    }
+    else if (a > b) {
+        return 1;
+    }
+    else {
+        var invA = 1 / a;
+        return invA / b >= 0 ? 0 : b === b && !(invA < 0) ? 1 : a !== a ? 0 : -1
+    }
 };
 
 Kotlin.charInc = function (value) {
