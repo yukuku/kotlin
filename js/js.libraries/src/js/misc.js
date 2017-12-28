@@ -16,15 +16,14 @@
 
 Kotlin.compareTo = function (a, b) {
     var typeA = typeof a;
-    var typeB = typeof a;
-    if (Kotlin.isChar(a) && typeB === "number") {
-        return Kotlin.primitiveCompareTo(a.charCodeAt(0), b);
+    if (typeA === "number") {
+        if (typeof b === "number") {
+            return Kotlin.doubleCompareTo(a, b);
+        }
+        return Kotlin.primitiveCompareTo(a, b);
     }
-    if (typeA === "number" && Kotlin.isChar(b)) {
-        return Kotlin.primitiveCompareTo(a, b.charCodeAt(0));
-    }
-    if (typeA === "number" || typeA === "string" || typeA === "boolean") {
-        return Kotlin.doubleCompareTo(a, b);
+    if (typeA === "string" || typeA === "boolean") {
+        return Kotlin.primitiveCompareTo(a, b);
     }
     return a.compareTo_11rb$(b);
 };
