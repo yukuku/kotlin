@@ -19,7 +19,6 @@ package org.jetbrains.kotlin.gradle.internal
 import org.jetbrains.kotlin.cli.common.arguments.*
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.memberProperties
 
 internal object CompilerArgumentsGradleInput {
     fun <T : CommonToolArguments> createInputsMap(args: T): Map<String, String> {
@@ -30,13 +29,12 @@ internal object CompilerArgumentsGradleInput {
                 } +
                 (CommonToolArguments::freeArgs as KProperty1<T, *>)
 
-        val filteredProperties = argumentProperties.filterNot { it in ignoredProperties }
+        val filteredProperties = argumentProperties.filter { it !in ignoredProperties }
 
-        fun inputItem(property: KProperty1<out T, *>): Pair<String, String> {
-            @Suppress("UNCHECKED_CAST")
-            val value = (property as KProperty1<T, *>).get(args)
+        fun inputItem(property: KProperty1<T, *>): Pair<String, String> {
+            val value = property.get(args)
             return property.name to if (value is Array<*>)
-                value.asList().toString()
+                value.joinToString()
             else
                 value.toString()
         }
