@@ -20,9 +20,15 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class KotlinLightCodeInsightFixtureTestCaseBase extends LightCodeInsightFixtureTestCase {
+    static {
+        Logger.getRootLogger().setLevel(Level.INFO);
+    }
+
     @NotNull
     @Override
     public Project getProject() {
