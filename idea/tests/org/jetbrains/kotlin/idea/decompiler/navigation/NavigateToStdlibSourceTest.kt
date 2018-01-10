@@ -25,8 +25,7 @@ import org.jetbrains.kotlin.idea.test.closeAndDeleteProject
 import org.jetbrains.kotlin.idea.test.configureAs
 
 class NavigateToStdlibSourceTest : KotlinCodeInsightTestCase() {
-
-    private val FILE_TEXT = "fun foo() { <caret>println() }"
+    private val fileText = "fun foo() { <caret>println() }"
 
     fun testRefToPrintlnWithJVM() {
         doTest("Console.kt", ModuleKind.KOTLIN_JVM_WITH_STDLIB_SOURCES)
@@ -45,7 +44,7 @@ class NavigateToStdlibSourceTest : KotlinCodeInsightTestCase() {
     }
 
     private fun doTest(sourceFileName: String, mainModule: ModuleKind, additionalModule: ModuleKind? = null) {
-        val navigationElement = configureAndResolve(FILE_TEXT, mainModule, additionalModule)
+        val navigationElement = configureAndResolve(fileText, mainModule, additionalModule)
         TestCase.assertEquals(sourceFileName, navigationElement.containingFile.name)
     }
 
@@ -57,10 +56,10 @@ class NavigateToStdlibSourceTest : KotlinCodeInsightTestCase() {
         closeAndDeleteProject()
     }
 
-    protected fun configureAndResolve(
-            text: String,
-            mainModuleKind: ModuleKind,
-            additionalModuleKind: ModuleKind? = null
+    private fun configureAndResolve(
+        text: String,
+        mainModuleKind: ModuleKind,
+        additionalModuleKind: ModuleKind? = null
     ): PsiElement {
         module.configureAs(mainModuleKind)
         if (additionalModuleKind != null) {

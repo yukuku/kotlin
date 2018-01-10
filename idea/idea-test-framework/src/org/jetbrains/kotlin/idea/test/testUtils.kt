@@ -19,7 +19,6 @@ package org.jetbrains.kotlin.idea.test
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ModuleRootModificationUtil.updateModel
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
@@ -28,7 +27,6 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.impl.FileManagerImpl
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.testFramework.LightPlatformTestCase
-import com.intellij.util.Consumer
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.idea.caches.project.LibraryModificationTracker
@@ -46,15 +44,14 @@ enum class ModuleKind {
 
 fun Module.configureAs(descriptor: KotlinLightProjectDescriptor) {
     val module = this
-    updateModel(module, Consumer<ModifiableRootModel> { model ->
+    updateModel(module, { model ->
         if (descriptor.sdk != null) {
             model.sdk = descriptor.sdk
         }
         val entries = model.contentEntries
         if (entries.isEmpty()) {
             descriptor.configureModule(module, model)
-        }
-        else {
+        } else {
             descriptor.configureModule(module, model, entries[0])
         }
     })
@@ -76,7 +73,7 @@ fun KtFile.dumpTextWithErrors(): String {
     val diagnostics = analyzeWithContent().diagnostics
     val errors = diagnostics.filter { it.severity == Severity.ERROR }
     if (errors.isEmpty()) return text
-    val header = errors.map { "// ERROR: " + DefaultErrorMessages.render(it).replace('\n', ' ') }.joinToString("\n", postfix = "\n")
+    val header = errors.joinToString("\n", postfix = "\n") { "// ERROR: " + DefaultErrorMessages.render(it).replace('\n', ' ') }
     return header + text
 }
 
@@ -138,8 +135,7 @@ fun Document.extractMultipleMarkerOffsets(project: Project, caretMarker: String 
                 setText(text.toString())
 
                 offsets += offset
-            }
-            else break
+            } else break
         }
     }
 
