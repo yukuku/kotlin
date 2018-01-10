@@ -25,6 +25,10 @@ import org.jetbrains.kotlin.test.KotlinTestUtils;
  */
 @Deprecated
 public abstract class KotlinCodeInsightTestCase extends CodeInsightTestCase {
+    static {
+        KotlinTestLoggerFactoryReConfigurator.reconfigure();
+    }
+
     @Override
     protected void setUp() throws Exception {
         VfsRootAccess.allowRootAccess(KotlinTestUtils.getHomeDirectory());
