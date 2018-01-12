@@ -91,16 +91,14 @@ abstract class KotlinLightCodeInsightFixtureTestCase : KotlinLightCodeInsightFix
         }
     }
 
-    override fun getProjectDescriptor(): LightProjectDescriptor
-            = getProjectDescriptorFromFileDirective()
+    override fun getProjectDescriptor(): LightProjectDescriptor = getProjectDescriptorFromFileDirective()
 
     protected fun getProjectDescriptorFromTestName(): LightProjectDescriptor {
         val testName = StringUtil.toLowerCase(getTestName(false))
 
         if (testName.endsWith("runtime")) {
             return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE
-        }
-        else if (testName.endsWith("stdlib")) {
+        } else if (testName.endsWith("stdlib")) {
             return ProjectDescriptorWithStdlibSources.INSTANCE
         }
 
@@ -113,47 +111,47 @@ abstract class KotlinLightCodeInsightFixtureTestCase : KotlinLightCodeInsightFix
                 val fileText = FileUtil.loadFile(File(testDataPath, fileName()), true)
 
                 val withLibraryDirective = InTextDirectivesUtils.findLinesWithPrefixesRemoved(fileText, "WITH_LIBRARY:")
-                if (!withLibraryDirective.isEmpty()) {
-                    return SdkAndMockLibraryProjectDescriptor(
-                        PluginTestCaseBase.getTestDataPathBase() + "/" + withLibraryDirective.get(
-                            0
-                        ), true
-                    )
+                when {
+                    !withLibraryDirective.isEmpty() ->
+                        return SdkAndMockLibraryProjectDescriptor(
+                            PluginTestCaseBase.getTestDataPathBase() + "/" + withLibraryDirective.get(
+                                0
+                            ), true
+                        )
+
+                    InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_SOURCES") ->
+                        return ProjectDescriptorWithStdlibSources.INSTANCE
+
+                    InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_KOTLIN_TEST") ->
+                        return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE_WITH_KOTLIN_TEST
+
+                    InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_FULL_JDK") ->
+                        return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE_FULL_JDK
+
+                    InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_REFLECT") ->
+                        return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE_WITH_REFLECT
+
+                    InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME") ||
+                            InTextDirectivesUtils.isDirectiveDefined(fileText, "WITH_RUNTIME") ->
+                        return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE
+
+                    InTextDirectivesUtils.isDirectiveDefined(fileText, "JS") ->
+                        return KotlinStdJSProjectDescriptor
+
+                    InTextDirectivesUtils.isDirectiveDefined(fileText, "ENABLE_MULTIPLATFORM") ->
+                        return KotlinProjectDescriptorWithFacet.KOTLIN_STABLE_WITH_MULTIPLATFORM
                 }
-                else if (InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_SOURCES")) {
-                    return ProjectDescriptorWithStdlibSources.INSTANCE
-                }
-                else if (InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_KOTLIN_TEST")) {
-                    return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE_WITH_KOTLIN_TEST
-                }
-                else if (InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_FULL_JDK")) {
-                    return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE_FULL_JDK
-                }
-                else if (InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME_WITH_REFLECT")) {
-                    return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE_WITH_REFLECT
-                }
-                else if (InTextDirectivesUtils.isDirectiveDefined(fileText, "RUNTIME") ||
-                         InTextDirectivesUtils.isDirectiveDefined(fileText, "WITH_RUNTIME")) {
-                    return KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE
-                }
-                else if (InTextDirectivesUtils.isDirectiveDefined(fileText, "JS")) {
-                    return KotlinStdJSProjectDescriptor
-                }
-                else if (InTextDirectivesUtils.isDirectiveDefined(fileText, "ENABLE_MULTIPLATFORM")) {
-                    return KotlinProjectDescriptorWithFacet.KOTLIN_STABLE_WITH_MULTIPLATFORM
-                }
-            }
-            catch (e: IOException) {
+            } catch (e: IOException) {
                 throw rethrow(e)
             }
         }
+
         return KotlinLightProjectDescriptor.INSTANCE
     }
 
     protected fun isAllFilesPresentInTest(): Boolean = KotlinTestUtils.isAllFilesPresentTest(getTestName(false))
 
-    protected open fun fileName(): String
-            = KotlinTestUtils.getTestDataFileName(this::class.java, this.name) ?: (getTestName(false) + ".kt")
+    protected open fun fileName(): String = KotlinTestUtils.getTestDataFileName(this::class.java, this.name) ?: (getTestName(false) + ".kt")
 
     protected fun performNotWriteEditorAction(actionId: String): Boolean {
         val dataContext = (myFixture.editor as EditorEx).dataContext
@@ -188,8 +186,7 @@ fun configureLanguageVersion(fileText: String, project: Project, module: Module)
             val facet = module.getOrCreateFacet(modelsProvider, useProjectSettings = false)
             facet.configureFacet(version, LanguageFeature.State.DISABLED, null, modelsProvider)
             modelsProvider.commit()
-        }
-        finally {
+        } finally {
             accessToken.finish()
         }
     }
