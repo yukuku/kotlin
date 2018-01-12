@@ -19,6 +19,8 @@ package org.jetbrains.kotlin.js.translate.utils
 import com.intellij.psi.PsiElement
 import com.intellij.util.SmartList
 import org.jetbrains.kotlin.backend.common.COROUTINE_SUSPENDED_NAME
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -31,15 +33,15 @@ import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.basic.FunctionIntrinsicWithReceiverComputed
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils.simpleReturnFunction
-import org.jetbrains.kotlin.psi.KtBlockExpression
-import org.jetbrains.kotlin.psi.KtDeclarationWithBody
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
-import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfoBefore
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasOrInheritsParametersWithDefaultValue
 import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.TypeUtils
 
 fun generateDelegateCall(
     classDescriptor: ClassDescriptor,
@@ -242,4 +244,39 @@ fun TranslationContext.createCoroutineResult(resolvedCall: ResolvedCall<*>): JsE
         coroutineResult = true
         synthetic = true
     }
+}
+
+/**
+ * Tries to get as precise statically known primitive type as possible - taking smart-casts and generic supertypes into account.
+ * This is needed to be compatible with JVM NaN behaviour, in particular the following two cases.
+ *
+ * // Smart-casts
+ * val a: Any = Double.NaN
+ * println(a == a) // true
+ * if (a is Double) {
+ *   println(a == a) // false
+ * }
+ *
+ * // Generics with Double super-type
+ * fun <T: Double> foo(v: T) = println(v == v)
+ * foo(Double.NaN) // false
+ *
+ * Also see org/jetbrains/kotlin/codegen/codegenUtil.kt#calcTypeForIEEE754ArithmeticIfNeeded
+ */
+fun TranslationContext.getRefinedType(expression: KtExpression): KotlinType? {
+    val bindingContext = bindingContext()
+    val descriptor = declarationDescriptor ?: currentModule
+    val ktType = bindingContext.getType(expression) ?: return null
+
+    val dataFlow = DataFlowValueFactory.createDataFlowValue(expression, ktType, bindingContext, descriptor)
+    val isPrimitiveFn = KotlinBuiltIns::isPrimitiveTypeOrNullablePrimitiveType
+
+    val languageVersionSettings = config.configuration.languageVersionSettings
+    return bindingContext.getDataFlowInfoBefore(expression).getStableTypes(dataFlow, languageVersionSettings).find(isPrimitiveFn) ?: // Smart-casts
+           TypeUtils.getAllSupertypes(ktType).find(isPrimitiveFn) ?: // Generic super-types
+           ktType // Default
+}
+
+fun TranslationContext.getRefinedTypeNotNull(expression: KtExpression): KotlinType {
+    return getRefinedType(expression) ?: throw IllegalStateException("Type must be not null for " + expression)
 }

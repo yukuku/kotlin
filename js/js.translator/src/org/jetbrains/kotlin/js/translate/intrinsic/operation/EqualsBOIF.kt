@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.TopLevelF
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.js.translate.utils.PsiUtils.getOperationToken
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
+import org.jetbrains.kotlin.js.translate.utils.getRefinedType
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtExpression
@@ -62,8 +63,8 @@ object EqualsBOIF : BinaryOperationIntrinsicFactory {
 
             val ktLeft = checkNotNull(expression.left) { "No left-hand side: " + expression.text }
             val ktRight = checkNotNull(expression.right) { "No right-hand side: " + expression.text }
-            val leftKotlinType = getRefinedType(ktLeft, context)
-            val rightKotlinType = getRefinedType(ktRight, context)
+            val leftKotlinType = context.getRefinedType(ktLeft)
+            val rightKotlinType = context.getRefinedType(ktRight)
             val leftType = leftKotlinType?.let { KotlinBuiltIns.getPrimitiveType(it) }
             val rightType = rightKotlinType?.let { KotlinBuiltIns.getPrimitiveType(it) }
 
@@ -88,37 +89,6 @@ object EqualsBOIF : BinaryOperationIntrinsicFactory {
             val coercedRight = TranslationUtils.coerce(context, right, anyType)
             val result = TopLevelFIF.KOTLIN_EQUALS.apply(coercedLeft, listOf(coercedRight), context)
             return if (isNegated) JsAstUtils.not(result) else result
-        }
-
-        /**
-         * Tries to get as precise statically known primitive type as possible - taking smart-casts and generic supertypes into account.
-         * This is needed to be compatible with JVM NaN behaviour, in particular the following two cases.
-         *
-         * // Smart-casts
-         * val a: Any = Double.NaN
-         * println(a == a) // true
-         * if (a is Double) {
-         *   println(a == a) // false
-         * }
-         *
-         * // Generics with Double super-type
-         * fun <T: Double> foo(v: T) = println(v == v)
-         * foo(Double.NaN) // false
-         *
-         * Also see org/jetbrains/kotlin/codegen/codegenUtil.kt#calcTypeForIEEE754ArithmeticIfNeeded
-         */
-        private fun getRefinedType(expression: KtExpression, context: TranslationContext): KotlinType? {
-            val bindingContext = context.bindingContext()
-            val descriptor = context.declarationDescriptor ?: context.currentModule
-            val ktType = bindingContext.getType(expression) ?: return null
-
-            val dataFlow = DataFlowValueFactory.createDataFlowValue(expression, ktType, bindingContext, descriptor)
-            val isPrimitiveFn = KotlinBuiltIns::isPrimitiveTypeOrNullablePrimitiveType
-
-            val languageVersionSettings = context.config.configuration.languageVersionSettings
-            return bindingContext.getDataFlowInfoBefore(expression).getStableTypes(dataFlow, languageVersionSettings).find(isPrimitiveFn) ?: // Smart-casts
-                   TypeUtils.getAllSupertypes(ktType).find(isPrimitiveFn) ?: // Generic super-types
-                   ktType // Default
         }
     }
 

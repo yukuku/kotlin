@@ -34,10 +34,7 @@ import org.jetbrains.kotlin.js.translate.general.Translation;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.ArrayFIF;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.TopLevelFIF;
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator;
-import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils;
-import org.jetbrains.kotlin.js.translate.utils.BindingUtils;
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
-import org.jetbrains.kotlin.js.translate.utils.TranslationUtils;
+import org.jetbrains.kotlin.js.translate.utils.*;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.KtBinaryExpressionWithTypeRHS;
 import org.jetbrains.kotlin.psi.KtExpression;
@@ -277,7 +274,7 @@ public final class PatternTranslator extends AbstractTranslator {
             @NotNull KtExpression patternExpression
     ) {
         JsExpression expressionToMatchAgainst = translateExpressionForExpressionPattern(patternExpression);
-        KotlinType patternType = BindingUtils.getTypeForExpression(bindingContext(), patternExpression);
+        KotlinType patternType = UtilsKt.getRefinedTypeNotNull(context(), patternExpression);
 
         EqualityType matchEquality = equalityType(type);
         EqualityType patternEquality = equalityType(patternType);
