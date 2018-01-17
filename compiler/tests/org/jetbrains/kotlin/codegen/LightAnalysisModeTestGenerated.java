@@ -9989,6 +9989,18 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
     public static class Ieee754 extends AbstractLightAnalysisModeTest {
+        @TestMetadata("smartCastToDifferentTypes.kt")
+        public void ignoreSmartCastToDifferentTypes() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/ieee754/smartCastToDifferentTypes.kt");
+            try {
+                doTest(fileName);
+            }
+            catch (Throwable ignore) {
+                return;
+            }
+            throw new AssertionError("Looks like this test can be unmuted. Remove IGNORE_BACKEND directive for that.");
+        }
+
         public void testAllFilesPresentInIeee754() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ieee754"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -10026,6 +10038,12 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
         @TestMetadata("dataClass.kt")
         public void testDataClass() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/ieee754/dataClass.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("differentTypesComparison.kt")
+        public void testDifferentTypesComparison() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/ieee754/differentTypesComparison.kt");
             doTest(fileName);
         }
 
@@ -10236,12 +10254,6 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
         @TestMetadata("smartCastOnWhenSubjectAfterCheckInBranch_properIeeeComparisons.kt")
         public void testSmartCastOnWhenSubjectAfterCheckInBranch_properIeeeComparisons() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/ieee754/smartCastOnWhenSubjectAfterCheckInBranch_properIeeeComparisons.kt");
-            doTest(fileName);
-        }
-
-        @TestMetadata("smartCastToDifferentTypes.kt")
-        public void testSmartCastToDifferentTypes() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/ieee754/smartCastToDifferentTypes.kt");
             doTest(fileName);
         }
 
