@@ -3,7 +3,7 @@
 
   <name>Kotlin</name>
   <description>Kotlin language support</description>
-  <version>@snapshot@</version>
+  <version>1.2.21-dev-999</version>
   <vendor url="http://www.jetbrains.com">JetBrains</vendor>
 
   <idea-version since-build="173.1" until-build="173.*"/>
