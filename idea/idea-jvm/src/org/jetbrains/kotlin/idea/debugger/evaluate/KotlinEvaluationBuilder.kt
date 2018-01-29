@@ -135,6 +135,8 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
 
         var isCompiledDataFromCache = true
         try {
+            Thread.sleep(100)
+
             val compiledData = KotlinDebuggerCaches.getOrCreateCompiledData(codeFragment, sourcePosition, context) {
                 fragment, position ->
                 isCompiledDataFromCache = false
@@ -154,6 +156,8 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
             if (isCompiledDataFromCache && result is ExceptionThrown && result.kind == ExceptionThrown.ExceptionKind.BROKEN_CODE) {
                 return runEval4j(context, extractAndCompile(codeFragment, sourcePosition, context)).toJdiValue(context)
             }
+
+//            throw ProcessCanceledException()
 
             return if (result is InterpreterResult) {
                 result.toJdiValue(context)

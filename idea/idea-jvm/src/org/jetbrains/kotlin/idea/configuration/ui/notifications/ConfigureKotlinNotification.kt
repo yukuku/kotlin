@@ -23,25 +23,28 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.idea.configuration.KotlinProjectConfigurator
 import org.jetbrains.kotlin.idea.configuration.getAbleToRunConfigurators
-import org.jetbrains.kotlin.idea.configuration.getConfiguratorByName
 import org.jetbrains.kotlin.idea.configuration.getCanBeConfiguredModulesWithKotlinFiles
+import org.jetbrains.kotlin.idea.configuration.getConfiguratorByName
 import org.jetbrains.kotlin.idea.configuration.ui.KotlinConfigurationCheckerComponent
 import javax.swing.event.HyperlinkEvent
 
 class ConfigureKotlinNotification(
-        project: Project,
-        excludeModules: List<Module>,
-        notificationString: String) : Notification(KotlinConfigurationCheckerComponent.CONFIGURE_NOTIFICATION_GROUP_ID, "Configure Kotlin",
-                                                   notificationString,
-                                                   NotificationType.WARNING, NotificationListener { notification, event ->
-    if (event.eventType == HyperlinkEvent.EventType.ACTIVATED) {
-        val configurator = getConfiguratorByName(event.description) ?: throw AssertionError("Missed action: " + event.description)
-        notification.expire()
+    project: Project,
+    excludeModules: List<Module>,
+    notificationString: String
+) : Notification(KotlinConfigurationCheckerComponent.CONFIGURE_NOTIFICATION_GROUP_ID,
+                 "Configure Kotlin",
+                 notificationString,
+                 NotificationType.WARNING,
+                 NotificationListener { notification, event ->
+                     if (event.eventType == HyperlinkEvent.EventType.ACTIVATED) {
+                         val configurator =
+                             getConfiguratorByName(event.description) ?: throw AssertionError("Missed action: " + event.description)
+                         notification.expire()
 
-        configurator.configure(project, excludeModules)
-    }
-}) {
-
+                         configurator.configure(project, excludeModules)
+                     }
+                 }) {
     override fun equals(o: Any?): Boolean {
         if (this === o) return true
         if (o !is ConfigureKotlinNotification) return false
@@ -64,15 +67,15 @@ class ConfigureKotlinNotification(
             val modulesString = if (isOnlyOneModule) "'${modules.first().name}' module" else "modules"
             val ableToRunConfigurators = getAbleToRunConfigurators(project)
             if (ableToRunConfigurators.isEmpty()) return null
-            val links = ableToRunConfigurators.joinToString(separator = "<br/>") {
-                configurator -> getLink(configurator, isOnlyOneModule)
+            val links = ableToRunConfigurators.joinToString(separator = "<br/>") { configurator ->
+                getLink(configurator, isOnlyOneModule)
             }
 
             return "Configure $modulesString in '${project.name}' project<br/> $links"
         }
 
         private fun getLink(configurator: KotlinProjectConfigurator, isOnlyOneModule: Boolean): String {
-            return "<a href=\"${configurator.name}\">as Kotlin (${configurator.presentableText}) module${if(!isOnlyOneModule) "s" else ""}</a>"
+            return "<a href=\"${configurator.name}\">as Kotlin (${configurator.presentableText}) module${if (!isOnlyOneModule) "s" else ""}</a>"
         }
     }
 }

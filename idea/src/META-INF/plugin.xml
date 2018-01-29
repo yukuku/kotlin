@@ -158,6 +158,9 @@
       <action id="StoredExceptionsThrowToggleAction" class="org.jetbrains.kotlin.idea.actions.internal.StoredExceptionsThrowToggleAction"
               text="Throw cached PCE"/>
 
+      <action id="CheckCodeStyleSchemeStatus" class="org.jetbrains.kotlin.idea.actions.internal.CheckCodeStyleSchemeStatus"
+              text="Check used Kotlin style"/>
+
       <add-to-group group-id="KotlinToolsGroup" anchor="last"/>
     </group>
 

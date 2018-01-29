@@ -29,6 +29,7 @@ import com.intellij.openapi.startup.StartupManager
 import org.jetbrains.kotlin.idea.configuration.checkHideNonConfiguredNotifications
 import org.jetbrains.kotlin.idea.configuration.getModulesWithKotlinFiles
 import org.jetbrains.kotlin.idea.configuration.showConfigureKotlinNotificationIfNeeded
+import org.jetbrains.kotlin.idea.configuration.ui.notifications.notifyNewKotlinStyleIfNeeded
 import org.jetbrains.kotlin.idea.project.getAndCacheLanguageLevelByDependencies
 import org.jetbrains.kotlin.idea.versions.collectModulesWithOutdatedRuntime
 import org.jetbrains.kotlin.idea.versions.findOutdatedKotlinLibraries
@@ -87,6 +88,8 @@ class KotlinConfigurationCheckerComponent(project: Project) : AbstractProjectCom
                 ApplicationManager.getApplication().invokeLater {
                     notifyOutdatedKotlinRuntime(myProject, libraries)
                 }
+
+                notifyNewKotlinStyleIfNeeded(myProject)
             }
             if (!isSyncing) {
                 val excludeModules = collectModulesWithOutdatedRuntime(libraries)
