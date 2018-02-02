@@ -135,8 +135,6 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
 
         var isCompiledDataFromCache = true
         try {
-            Thread.sleep(100)
-
             val compiledData = KotlinDebuggerCaches.getOrCreateCompiledData(codeFragment, sourcePosition, context) {
                 fragment, position ->
                 isCompiledDataFromCache = false

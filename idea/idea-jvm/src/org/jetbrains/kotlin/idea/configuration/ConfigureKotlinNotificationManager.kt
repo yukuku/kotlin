@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.idea.configuration.ui.notifications.ConfigureKotlinN
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
-object ConfigureKotlinNotificationManager : KotlinSingleNotificationManager<ConfigureKotlinNotification> {
+object ConfigureKotlinNotificationManager: KotlinSingleNotificationManager<ConfigureKotlinNotification> {
     fun notify(project: Project, excludeModules: List<Module> = emptyList()) {
         val notificationString = ConfigureKotlinNotification.getNotificationString(project, excludeModules)
         if (notificationString != null) {
@@ -43,7 +43,7 @@ object ConfigureKotlinNotificationManager : KotlinSingleNotificationManager<Conf
     }
 }
 
-interface KotlinSingleNotificationManager<in T : Notification> {
+interface KotlinSingleNotificationManager<in T: Notification> {
     fun notify(project: Project, notification: T) {
         if (!expireOldNotifications(project, notification::class, notification)) {
             notification.notify(project)
@@ -58,7 +58,8 @@ interface KotlinSingleNotificationManager<in T : Notification> {
         for (oldNotification in notifications) {
             if (oldNotification == notification) {
                 isNotificationExists = true
-            } else {
+            }
+            else {
                 oldNotification?.expire()
             }
         }
@@ -80,7 +81,8 @@ fun checkHideNonConfiguredNotifications(project: Project) {
                 ConfigureKotlinNotificationManager.expireOldNotifications(project)
                 checkInProgress.set(false)
             }
-        } else {
+        }
+        else {
             checkInProgress.set(false)
         }
     }
