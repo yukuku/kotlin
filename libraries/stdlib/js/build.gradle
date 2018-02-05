@@ -136,7 +136,7 @@ compileKotlin2Js {
         outputFile = "${buildDir}/classes/main/kotlin.js"
         sourceMap = true
         sourceMapPrefix = "./"
-        freeCompilerArgs += [ "-source-map-base-dirs", [builtinsSrcDir, jsSrcDir, commonSrcDir ].join(File.pathSeparator) ]
+        freeCompilerArgs += [ "-source-map-base-dirs", [builtinsSrcDir, jsSrcDir, commonSrcDir].collect { file(it).absoluteFile }.join(File.pathSeparator) ]
     }
 }
 
@@ -155,7 +155,7 @@ task compileJs(type: JavaExec) {
     outputs.file(jsOutputFile)
     outputs.file("${jsOutputFile}.map")
 
-    def inputFiles = fileTree("${jsSrcJsDir}") {
+    def inputFiles = fileTree(jsSrcJsDir) {
         include '**/*.js'
     }
 
@@ -188,17 +188,21 @@ task compileJs(type: JavaExec) {
 
         def sourceMapBasePaths = [
                 "./",
-                "/js.libraries/src/js/"
+                "libraries/stdlib/js/src/js/",
+                "libraries/stdlib/js/src/",
         ]
         sourceMap.sources = sourceMap.sources.collect { sourcePath ->
+            // println(sourcePath)
             def prefixToRemove = sourceMapBasePaths.find { basePath -> sourcePath.startsWith(basePath) }
             if (prefixToRemove != null) sourcePath.substring(prefixToRemove.length()) else sourcePath
         }
 
-        def sourceMapSourcesBaseDirs = [ jsSrcDir, jsSrcGeneratedDir, builtinsSrcDir2, builtinsSrcDir, commonSrcDir, rootDir ]
+        def sourceMapSourcesBaseDirs = [jsSrcDir, jsSrcJsDir, jsSrcGeneratedDir, builtinsSrcDir, commonSrcDir, projectDir]
 
         sourceMap.sourcesContent = sourceMap.sources.collect { sourceName ->
-            sourceMapSourcesBaseDirs.collect { file("$it/$sourceName") }.find { it.exists() && it.name != "kotlin.js" }?.text
+            def text = sourceMapSourcesBaseDirs.collect { file("$it/$sourceName") }.find { it.exists() && it.name != "kotlin.js" }?.text
+            if (text == null) logger.warn("Sources missing for file $sourceName")
+            text
         }
 
         sourceMapFile.text = groovy.json.JsonOutput.toJson(sourceMap)
@@ -239,7 +243,11 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from (sourceSets.main.allSource) {
         into 'kotlin'
         exclude '**/*.java'
+        exclude 'org.w3c/**'
         exclude 'js/**'
+    }
+    from (sourceSets.main.allSource) {
+        include 'org.w3c/**'
     }
 }
 
