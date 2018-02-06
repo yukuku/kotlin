@@ -425,14 +425,14 @@ private fun addReturnsUnitMarker(v: InstructionAdapter) {
  * In such cases we just generate the marker which is going to be replaced with real continuation on generating state machine.
  * See [CoroutineTransformerMethodVisitor] for more info.
  */
-internal fun addFakeContinuationMarker(v: MethodVisitor) {
-    v.visitInsn(Opcodes.ICONST_0 + INLINE_MARKER_FAKE_CONTINUATION)
-    v.visitMethodInsn(
-        Opcodes.INVOKESTATIC, INLINE_MARKER_CLASS_NAME,
+internal fun addFakeContinuationMarker(v: InstructionAdapter) {
+    v.iconst(INLINE_MARKER_FAKE_CONTINUATION)
+    v.invokestatic(
+        INLINE_MARKER_CLASS_NAME,
         "mark",
         "(I)V", false
     )
-    v.visitInsn(Opcodes.ACONST_NULL)
+    v.aconst(null)
 }
 
 internal fun isBeforeSuspendMarker(insn: AbstractInsnNode) = isSuspendMarker(insn, INLINE_MARKER_BEFORE_SUSPEND_ID)

@@ -341,16 +341,17 @@ fun createMethodNodeForCoroutineContext(functionDescriptor: FunctionDescriptor):
             null, null
         )
 
-    addFakeContinuationMarker(node)
+    val v = InstructionAdapter(node)
 
-    node.visitMethodInsn(
-        Opcodes.INVOKEINTERFACE,
+    addFakeContinuationMarker(v)
+
+    v.invokeinterface(
         CONTINUATION_ASM_TYPE.internalName,
         GET_CONTEXT_METHOD_NAME,
-        Type.getMethodDescriptor(COROUTINE_CONTEXT_ASM_TYPE),
-        true
+        Type.getMethodDescriptor(COROUTINE_CONTEXT_ASM_TYPE)
     )
-    node.visitInsn(Opcodes.ARETURN)
+    v.areturn(COROUTINE_CONTEXT_ASM_TYPE)
+
     node.visitMaxs(1, 1)
 
     return node
