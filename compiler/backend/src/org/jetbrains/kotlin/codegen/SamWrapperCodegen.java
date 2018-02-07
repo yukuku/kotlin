@@ -205,15 +205,11 @@ public class SamWrapperCodegen {
             outermostOwner = filePartFqName.parent().child(outermostClassifier.getName());
         }
 
-        JavaClassDescriptor descriptor = samType.getJavaClassDescriptor();
-        //Change sam wrapper name template carefully cause it's used in inliner:
-        // see isSamWrapper/isSamWrapperConstructorCall in inlineCodegenUtils.kt
         String shortName = String.format(
-                "%s$sam$%s%s$%08x",
+                "%s$sam%s$%s$0",
                 outermostOwner.shortName().asString(),
-                descriptor.getName().asString(),
                 (isInsideInline ? "$i" : ""),
-                DescriptorUtils.getFqNameSafe(descriptor).hashCode()
+                DescriptorUtils.getFqNameSafe(samType.getJavaClassDescriptor()).asString().replace('.', '_')
         );
         return outermostOwner.parent().child(Name.identifier(shortName));
     }

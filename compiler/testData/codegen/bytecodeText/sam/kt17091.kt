@@ -15,4 +15,4 @@ class A {
     }
 }
 
-// 1 class A\$sam\$Runnable\$36fc6471
+// 1 class A\$sam\$java_lang_Runnable\$0
