@@ -146,7 +146,7 @@ public class RunUtils {
         handler.startNotify();
 
         if (settings.waitForEnd) {
-            String timeoutAsString = System.getenv("kotlin.tests.android.timeout");
+            String timeoutAsString = System.getProperty("kotlin.tests.android.timeout");
             if (timeoutAsString == null) {
                 timeoutAsString = "30";
                 System.err.println("Default value for timeout used: timeout = 30 min. You can change it using 'kotlin.tests.android.timeout' environment variable");

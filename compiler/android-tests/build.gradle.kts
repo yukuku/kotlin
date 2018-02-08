@@ -31,6 +31,7 @@ sourceSets {
 projectTest {
     doFirst {
         systemProperty("idea.home.path", intellijRootDir().canonicalPath)
+        systemProperty("kotlin.tests.android.timeout", "70")
     }
     workingDir = rootDir
 }
