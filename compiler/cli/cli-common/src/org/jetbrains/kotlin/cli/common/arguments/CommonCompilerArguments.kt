@@ -17,14 +17,16 @@
 package org.jetbrains.kotlin.cli.common.arguments
 
 import com.intellij.util.xmlb.annotations.Transient
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
-import org.jetbrains.kotlin.config.AnalysisFlag
+import org.jetbrains.kotlin.config.*
 import java.util.*
 
 @SuppressWarnings("WeakerAccess")
 abstract class CommonCompilerArguments : CommonToolArguments() {
     companion object {
-        @JvmStatic private val serialVersionUID = 0L
+        @JvmStatic
+        private val serialVersionUID = 0L
 
         const val PLUGIN_OPTION_FORMAT = "plugin:<pluginId>:<optionName>=<value>"
 
@@ -38,9 +40,9 @@ abstract class CommonCompilerArguments : CommonToolArguments() {
 
     @GradleOption(DefaultValues.LanguageVersions::class)
     @Argument(
-            value = "-language-version",
-            valueDescription = "<version>",
-            description = "Provide source compatibility with specified language version"
+        value = "-language-version",
+        valueDescription = "<version>",
+        description = "Provide source compatibility with specified language version"
     )
     var languageVersion: String? by FreezableVar(null)
 
@@ -49,16 +51,16 @@ abstract class CommonCompilerArguments : CommonToolArguments() {
 
     @GradleOption(DefaultValues.LanguageVersions::class)
     @Argument(
-            value = "-api-version",
-            valueDescription = "<version>",
-            description = "Allow to use declarations only from the specified version of bundled libraries"
+        value = "-api-version",
+        valueDescription = "<version>",
+        description = "Allow to use declarations only from the specified version of bundled libraries"
     )
     var apiVersion: String? by FreezableVar(null)
 
     @Argument(
-            value = "-kotlin-home",
-            valueDescription = "<path>",
-            description = "Path to Kotlin compiler home directory, used for runtime libraries discovery"
+        value = "-kotlin-home",
+        valueDescription = "<path>",
+        description = "Path to Kotlin compiler home directory, used for runtime libraries discovery"
     )
     var kotlinHome: String? by FreezableVar(null)
 
@@ -72,19 +74,22 @@ abstract class CommonCompilerArguments : CommonToolArguments() {
 
     // TODO Remove in 1.0
     @Argument(
-            value = "-Xrepeat",
-            valueDescription = "<count>",
-            description = "Repeat compilation (for performance analysis)"
+        value = "-Xrepeat",
+        valueDescription = "<count>",
+        description = "Repeat compilation (for performance analysis)"
     )
     var repeat: String? by FreezableVar(null)
 
     @Argument(
-            value = "-Xskip-metadata-version-check",
-            description = "Load classes with bad metadata version anyway (incl. pre-release classes)"
+        value = "-Xskip-metadata-version-check",
+        description = "Load classes with bad metadata version anyway (incl. pre-release classes)"
     )
     var skipMetadataVersionCheck: Boolean by FreezableVar(false)
 
-    @Argument(value = "-Xallow-kotlin-package", description = "Allow compiling code in package 'kotlin' and allow not requiring kotlin.stdlib in module-info")
+    @Argument(
+        value = "-Xallow-kotlin-package",
+        description = "Allow compiling code in package 'kotlin' and allow not requiring kotlin.stdlib in module-info"
+    )
     var allowKotlinPackage: Boolean by FreezableVar(false)
 
     @Argument(value = "-Xreport-output-files", description = "Report source to output files mapping")
@@ -100,34 +105,34 @@ abstract class CommonCompilerArguments : CommonToolArguments() {
     var noCheckActual: Boolean by FreezableVar(false)
 
     @Argument(
-            value = "-Xintellij-plugin-root",
-            valueDescription = "<path>",
-            description = "Path to the kotlin-compiler.jar or directory where IntelliJ configuration files can be found"
+        value = "-Xintellij-plugin-root",
+        valueDescription = "<path>",
+        description = "Path to the kotlin-compiler.jar or directory where IntelliJ configuration files can be found"
     )
     var intellijPluginRoot: String? by FreezableVar(null)
 
     @Argument(
-            value = "-Xcoroutines",
-            valueDescription = "{enable|warn|error}",
-            description = "Enable coroutines or report warnings or errors on declarations and use sites of 'suspend' modifier"
+        value = "-Xcoroutines",
+        valueDescription = "{enable|warn|error}",
+        description = "Enable coroutines or report warnings or errors on declarations and use sites of 'suspend' modifier"
     )
     var coroutinesState: String? by FreezableVar(WARN)
 
     @Argument(
-            value = "-Xnew-inference",
-            description = "Enable new experimental generic type inference algorithm"
+        value = "-Xnew-inference",
+        description = "Enable new experimental generic type inference algorithm"
     )
     var newInference: Boolean by FreezableVar(false)
 
     @Argument(
-            value = "-Xlegacy-smart-cast-after-try",
-            description = "Allow var smart casts despite assignment in try block"
+        value = "-Xlegacy-smart-cast-after-try",
+        description = "Allow var smart casts despite assignment in try block"
     )
     var legacySmartCastAfterTry: Boolean by FreezableVar(false)
 
     @Argument(
-            value = "-Xeffect-system",
-            description = "Enable experimental language feature: effect system"
+        value = "-Xeffect-system",
+        description = "Enable experimental language feature: effect system"
     )
     var effectSystem: Boolean by FreezableVar(false)
 
@@ -138,9 +143,9 @@ abstract class CommonCompilerArguments : CommonToolArguments() {
     var readDeserializedContracts: Boolean by FreezableVar(false)
 
     @Argument(
-            value = "-Xexperimental",
-            valueDescription = "<fq.name>",
-            description = "Enable and propagate usages of experimental API for marker annotation with the given fully qualified name"
+        value = "-Xexperimental",
+        valueDescription = "<fq.name>",
+        description = "Enable and propagate usages of experimental API for marker annotation with the given fully qualified name"
     )
     var experimental: Array<String>? by FreezableVar(null)
 
@@ -158,8 +163,84 @@ abstract class CommonCompilerArguments : CommonToolArguments() {
             put(AnalysisFlag.allowKotlinPackage, allowKotlinPackage)
             put(AnalysisFlag.experimental, experimental?.toList().orEmpty())
             put(AnalysisFlag.useExperimental, useExperimental?.toList().orEmpty())
+            put(AnalysisFlag.explicitApiVersion, apiVersion != null)
         }
     }
+
+    open fun configureLanguageFeatures(collector: MessageCollector): MutableMap<LanguageFeature, LanguageFeature.State> =
+        hashMapOf<LanguageFeature, LanguageFeature.State>().apply {
+            if (multiPlatform) {
+                put(LanguageFeature.MultiPlatformProjects, LanguageFeature.State.ENABLED)
+            }
+
+            when (coroutinesState) {
+                CommonCompilerArguments.ERROR -> put(LanguageFeature.Coroutines, LanguageFeature.State.ENABLED_WITH_ERROR)
+                CommonCompilerArguments.ENABLE -> put(LanguageFeature.Coroutines, LanguageFeature.State.ENABLED)
+                CommonCompilerArguments.WARN -> {}
+                else -> {
+                    val message = "Invalid value of -Xcoroutines (should be: enable, warn or error): " + coroutinesState
+                    collector.report(CompilerMessageSeverity.ERROR, message, null)
+                }
+            }
+
+            if (newInference) {
+                put(LanguageFeature.NewInference, LanguageFeature.State.ENABLED)
+            }
+
+            if (legacySmartCastAfterTry) {
+                put(LanguageFeature.SoundSmartCastsAfterTry, LanguageFeature.State.DISABLED)
+            }
+
+            if (effectSystem) {
+                put(LanguageFeature.UseCallsInPlaceEffect, LanguageFeature.State.ENABLED)
+                put(LanguageFeature.UseReturnsEffect, LanguageFeature.State.ENABLED)
+            }
+
+            if (readDeserializedContracts) {
+                put(LanguageFeature.ReadDeserializedContracts, LanguageFeature.State.ENABLED)
+            }
+        }
+
+    fun configureLanguageVersionSettings(collector: MessageCollector): LanguageVersionSettings {
+
+        // If only "-api-version" is specified, language version is assumed to be the latest stable
+        val languageVersion = parseVersion(collector, languageVersion, "language") ?: LanguageVersion.LATEST_STABLE
+
+        // If only "-language-version" is specified, API version is assumed to be equal to the language version
+        // (API version cannot be greater than the language version)
+        val apiVersion = parseVersion(collector, apiVersion, "API") ?: languageVersion
+
+        if (apiVersion > languageVersion) {
+            collector.report(
+                CompilerMessageSeverity.ERROR,
+                "-api-version (${apiVersion.versionString}) cannot be greater than -language-version (${languageVersion.versionString})"
+            )
+        }
+
+        if (!languageVersion.isStable) {
+            collector.report(
+                CompilerMessageSeverity.STRONG_WARNING,
+                "Language version ${languageVersion.versionString} is experimental, there are no backwards compatibility guarantees for new language and library features"
+            )
+        }
+
+        return LanguageVersionSettingsImpl(
+            languageVersion,
+            ApiVersion.createByLanguageVersion(apiVersion),
+            configureAnalysisFlags(collector),
+            configureLanguageFeatures(collector)
+        )
+    }
+
+    private fun parseVersion(collector: MessageCollector, value: String?, versionOf: String): LanguageVersion? =
+        if (value == null) null
+        else LanguageVersion.fromVersionString(value)
+                ?: run {
+                    val versionStrings = LanguageVersion.values().map(LanguageVersion::description)
+                    val message = "Unknown $versionOf version: $value\nSupported $versionOf versions: ${versionStrings.joinToString(", ")}"
+                    collector.report(CompilerMessageSeverity.ERROR, message, null)
+                    null
+                }
 
     // Used only for serialize and deserialize settings. Don't use in other places!
     class DummyImpl : CommonCompilerArguments()

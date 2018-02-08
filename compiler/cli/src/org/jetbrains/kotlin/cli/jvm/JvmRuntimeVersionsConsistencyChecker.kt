@@ -121,7 +121,7 @@ object JvmRuntimeVersionsConsistencyChecker {
             val actualApi = ApiVersion.parse(actualRuntimeVersion.toString())
             if (actualApi != null) {
                 val inferredApiVersion =
-                        if (configuration.getBoolean(CLIConfigurationKeys.IS_API_VERSION_EXPLICIT))
+                        if (languageVersionSettings.getFlag(AnalysisFlag.explicitApiVersion))
                             languageVersionSettings.apiVersion
                         else
                             // "minOf" is needed in case when API version was inferred from language version and it's older than actualApi.
