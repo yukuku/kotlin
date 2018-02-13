@@ -61,6 +61,7 @@ public final class Namer {
     public static final String COMPARE_TO_METHOD_NAME = getStableMangledNameForDescriptor(JsPlatform.INSTANCE.getBuiltIns().getComparable(), "compareTo");
     public static final String LONG_FROM_NUMBER = "fromNumber";
     public static final String LONG_TO_NUMBER = "toNumber";
+    public static final String LONG_TO_NUMBER_OR_NULL = "toNumberOrNull";
     public static final String LONG_FROM_INT = "fromInt";
     public static final String LONG_ZERO = "ZERO";
     public static final String LONG_ONE = "ONE";

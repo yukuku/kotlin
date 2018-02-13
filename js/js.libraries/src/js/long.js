@@ -844,3 +844,7 @@ Kotlin.Long.prototype.inv = Kotlin.Long.prototype.not;
 Kotlin.Long.prototype.rangeTo = function (other) {
     return new Kotlin.kotlin.ranges.LongRange(this, other);
 };
+
+Kotlin.Long.toNumberOrNull = function (long) {
+  return long == null ? null : long.toNumber()
+};

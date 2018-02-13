@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.js.translate.expression;
 
+import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.KtNodeTypes;
@@ -33,6 +34,7 @@ import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
 import org.jetbrains.kotlin.js.translate.general.Translation;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.ArrayFIF;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.TopLevelFIF;
+import org.jetbrains.kotlin.js.translate.intrinsic.operation.BinaryOperationIntrinsicsKt;
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator;
 import org.jetbrains.kotlin.js.translate.utils.*;
 import org.jetbrains.kotlin.name.Name;
@@ -274,10 +276,20 @@ public final class PatternTranslator extends AbstractTranslator {
             @NotNull KtExpression patternExpression
     ) {
         JsExpression expressionToMatchAgainst = translateExpressionForExpressionPattern(patternExpression);
-        KotlinType patternType = UtilsKt.getRefinedTypeNotNull(context(), patternExpression);
 
-        EqualityType matchEquality = equalityType(type);
-        EqualityType patternEquality = equalityType(patternType);
+        Pair<KotlinType, KotlinType> ieeeInfo = BinaryOperationIntrinsicsKt.binaryOperationTypes(patternExpression, context());
+
+        EqualityType matchEquality, patternEquality;
+
+        if (ieeeInfo != null) {
+            matchEquality = equalityType(ieeeInfo.component1());
+            patternEquality = equalityType(ieeeInfo.component2());
+        } else {
+            KotlinType patternType = UtilsKt.getPrecisePrimitiveTypeNotNull(context(), patternExpression);
+
+            matchEquality = equalityType(type);
+            patternEquality = equalityType(patternType);
+        }
 
         if (matchEquality == EqualityType.PRIMITIVE && patternEquality == EqualityType.PRIMITIVE) {
             return equality(expressionToMatch, expressionToMatchAgainst);

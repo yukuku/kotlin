@@ -205,6 +205,11 @@ public final class JsAstUtils {
     }
 
     @NotNull
+    public static JsExpression longToNumberOrNull(@NotNull JsExpression expression) {
+        return invokeMethod(Namer.kotlinLong(), Namer.LONG_TO_NUMBER_OR_NULL, expression);
+    }
+
+    @NotNull
     public static JsExpression compareForObject(@NotNull JsExpression left, @NotNull JsExpression right) {
         return invokeMethod(left, Namer.COMPARE_TO_METHOD_NAME, right);
     }
