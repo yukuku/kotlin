@@ -5,8 +5,10 @@ import org.gradle.api.publish.ivy.internal.artifact.DefaultIvyArtifact
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyConfiguration
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublicationIdentity
 import org.gradle.api.publish.ivy.internal.publisher.IvyDescriptorFileGenerator
+import org.gradle.internal.impldep.org.apache.ivy.plugins.resolver.URLResolver
 import java.io.File
 import org.gradle.internal.os.OperatingSystem
+import java.net.URL
 
 val intellijUltimateEnabled: Boolean by rootProject.extra
 val intellijRepo: String by rootProject.extra
@@ -17,6 +19,9 @@ val androidStudioBuild = rootProject.findProperty("versions.androidStudioBuild")
 val intellijSeparateSdks: Boolean by rootProject.extra
 val installIntellijCommunity = !intellijUltimateEnabled || intellijSeparateSdks
 val installIntellijUltimate = intellijUltimateEnabled
+
+val platformBaseVersion = intellijVersion.substringBefore('.', "").takeIf { it.isNotEmpty() }
+        ?: error("Invalid IDEA version $intellijVersion")
 
 logger.info("intellijUltimateEnabled: $intellijUltimateEnabled")
 
@@ -48,11 +53,15 @@ repositories {
     }
     maven { setUrl("$intellijRepo/$intellijReleaseType") }
     maven { setUrl("https://plugins.jetbrains.com/maven") }
+    ivy {
+        artifactPattern("https://raw.github.com/JetBrains/intellij-community/[revision]/lib/src/[artifact].zip")
+    }
 }
 
 val intellij by configurations.creating
 val intellijUltimate by configurations.creating
 val sources by configurations.creating
+val `asm-shaded-sources` by configurations.creating
 val `jps-standalone` by configurations.creating
 val `jps-build-test` by configurations.creating
 val `intellij-core` by configurations.creating
@@ -76,6 +85,7 @@ dependencies {
         }
     }
     sources("com.jetbrains.intellij.idea:ideaIC:$intellijVersion:sources@jar")
+    `asm-shaded-sources`("asmsources:asm-src:$platformBaseVersion@zip")
     `jps-standalone`("com.jetbrains.intellij.idea:jps-standalone:$intellijVersion")
     `jps-build-test`("com.jetbrains.intellij.idea:jps-build-test:$intellijVersion")
     `intellij-core`("com.jetbrains.intellij.idea:intellij-core:$intellijVersion")
@@ -138,6 +148,8 @@ val copyIntellijSdkSources by tasks.creating {
 
 val copyJpsBuildTest by tasks.creating { configureExtractFromConfigurationTask(`jps-build-test`) { it.singleFile } }
 
+val copyAsmShadedSources by tasks.creating { configureExtractFromConfigurationTask(`asm-shaded-sources`) { it.singleFile } }
+
 val unzipNodeJSPlugin by tasks.creating { configureExtractFromConfigurationTask(`plugins-NodeJS`) { zipTree(it.singleFile) } }
 
 fun writeIvyXml(moduleName: String, fileName: String, jarFiles: FileCollection, baseDir: File, sourcesJar: File?) {
@@ -159,7 +171,7 @@ fun writeIvyXml(moduleName: String, fileName: String, jarFiles: FileCollection, 
 }
 
 val prepareIvyXmls by tasks.creating {
-    dependsOn(unzipIntellijCore, unzipJpsStandalone, copyIntellijSdkSources, copyJpsBuildTest)
+    dependsOn(unzipIntellijCore, unzipJpsStandalone, copyIntellijSdkSources, copyJpsBuildTest, copyAsmShadedSources)
 
     val intellijSdkDir = File(repoDir, intellij.name)
     val intellijUltimateSdkDir = File(repoDir, intellijUltimate.name)
@@ -176,7 +188,7 @@ val prepareIvyXmls by tasks.creating {
         outputs.file(File(repoDir, "${intellijUltimate.name}.ivy.xml"))
     }
 
-    val flatDeps = listOf(`intellij-core`, `jps-standalone`, `jps-build-test`)
+    val flatDeps = listOf(`intellij-core`, `jps-standalone`, `jps-build-test`, `asm-shaded-sources`)
     flatDeps.forEach {
         inputs.dir(File(repoDir, it.name))
         outputs.file(File(repoDir, "${it.name}.ivy.xml"))
