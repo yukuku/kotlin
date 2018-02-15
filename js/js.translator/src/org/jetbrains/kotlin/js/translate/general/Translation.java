@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.js.facade.TranslationUnit;
 import org.jetbrains.kotlin.js.facade.exceptions.TranslationException;
 import org.jetbrains.kotlin.js.facade.exceptions.TranslationRuntimeException;
 import org.jetbrains.kotlin.js.facade.exceptions.UnsupportedFeatureException;
+import org.jetbrains.kotlin.js.naming.NameSuggestion;
 import org.jetbrains.kotlin.js.sourceMap.SourceFilePathResolver;
 import org.jetbrains.kotlin.js.translate.callTranslator.CallTranslator;
 import org.jetbrains.kotlin.js.translate.context.Namer;
@@ -101,14 +102,17 @@ public final class Translation {
                     constantResult.setSource(expression);
 
                     if (KotlinBuiltIns.isLong(type)) {
-
                         KtReferenceExpression referenceExpression = PsiUtils.getSimpleName(expression);
-                        if (referenceExpression == null) return constantResult;
+                        if (referenceExpression != null) {
+                            DeclarationDescriptor descriptor =
+                                    BindingUtils.getDescriptorForReferenceExpression(context.bindingContext(), referenceExpression);
+                            if (descriptor != null) {
+                                return context.declareConstantValue(descriptor, constantResult);
+                            }
+                        }
 
-                        DeclarationDescriptor descriptor =
-                                BindingUtils.getDescriptorForReferenceExpression(context.bindingContext(), referenceExpression);
-
-                        return descriptor == null ? constantResult : context.declareConstantValue(descriptor, constantResult);
+                        String name = NameSuggestion.sanitizeName("L" + compileTimeValue.getValue(type).toString());
+                        return context.declareConstantValue(name, "constant:" + name, constantResult);
                     }
 
                     if (KotlinBuiltIns.isInt(type)) {

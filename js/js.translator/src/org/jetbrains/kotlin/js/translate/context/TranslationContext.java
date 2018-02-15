@@ -881,13 +881,20 @@ public class TranslationContext {
 
     @NotNull
     public JsExpression declareConstantValue(@NotNull DeclarationDescriptor descriptor, @NotNull JsExpression value) {
+        if (!isPublicInlineFunction() && isFromCurrentModule(descriptor)) {
+            return getQualifiedReference(descriptor);
+        }
+
+        // Tag shouldn't be null if we cannot reference this descriptor locally.
         String tag = Objects.requireNonNull(staticContext.getTag(descriptor));
         String suggestedName = StaticContext.getSuggestedName(descriptor);
 
+        return declareConstantValue(suggestedName, tag, value);
+    }
+
+    @NotNull
+    public JsExpression declareConstantValue(@NotNull String suggestedName, @NotNull String tag, @NotNull JsExpression value) {
         if (inlineFunctionContext == null || !isPublicInlineFunction()) {
-            if (isFromCurrentModule(descriptor)) {
-                return getInnerReference(descriptor);
-            }
             return staticContext.importDeclaration(suggestedName, tag, value).makeRef();
         }
         else {
