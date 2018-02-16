@@ -244,8 +244,8 @@ fun TranslationContext.createCoroutineResult(resolvedCall: ResolvedCall<*>): JsE
 }
 
 /**
- * Tries to get as precise statically known primitive type as possible - taking generic supertypes into account.
- * This is needed to be compatible with JVM NaN behaviour, in particular the following two cases.
+ * Tries to get precise statically known primitive type. Takes generic supertypes into account. Doesn't handle smart-casts.
+ * This is needed to be compatible with JVM NaN behaviour:
  *
  * // Generics with Double super-type
  * fun <T: Double> foo(v: T) = println(v == v)
