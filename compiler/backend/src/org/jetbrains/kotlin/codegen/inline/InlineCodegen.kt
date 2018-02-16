@@ -151,7 +151,6 @@ abstract class InlineCodegen<out T: BaseExpressionCodegen>(
             callDefault: Boolean,
             codegen: BaseExpressionCodegen
     ) {
-        state.globalInlineContext.enter()
         var nodeAndSmap: SMAPAndMethodNode? = null
         try {
             nodeAndSmap = createInlineMethodNode(functionDescriptor, jvmSignature, callDefault, typeArguments, state, sourceCompiler)
@@ -165,8 +164,6 @@ abstract class InlineCodegen<out T: BaseExpressionCodegen>(
         }
         catch (e: Exception) {
             throw throwCompilationException(nodeAndSmap, e, true)
-        } finally {
-            state.globalInlineContext.exit()
         }
     }
 
@@ -655,14 +652,14 @@ class PsiInlineCodegen(
             callDefault: Boolean,
             codegen: ExpressionCodegen
     ) {
-        if (!state.inlineCycleReporter.enterIntoInlining(resolvedCall)) {
+        if (!state.globalInlineContext.enterIntoInlining(resolvedCall)) {
             generateStub(resolvedCall, codegen)
             return
         }
         try {
             performInline(resolvedCall?.typeArguments, callDefault, codegen)
         } finally {
-            state.inlineCycleReporter.exitFromInliningOf(resolvedCall)
+            state.globalInlineContext.exitFromInliningOf(resolvedCall)
         }
     }
 

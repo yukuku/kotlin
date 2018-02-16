@@ -5,17 +5,24 @@
 
 package org.jetbrains.kotlin.codegen.inline
 
+import org.jetbrains.kotlin.codegen.InlineCycleReporter
+import org.jetbrains.kotlin.diagnostics.DiagnosticSink
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import java.util.*
 
-class GlobalInlineContext {
+class GlobalInlineContext(diagnostics: DiagnosticSink) {
+
+    private val inlineCycleReporter: InlineCycleReporter = InlineCycleReporter(diagnostics)
 
     val state = LinkedList<MutableSet<String>>()
 
-    fun enter() {
-        state.push(hashSetOf())
-    }
+    fun enterIntoInlining(call: ResolvedCall<*>?) =
+        inlineCycleReporter.enterIntoInlining(call).also {
+            if (it) state.push(hashSetOf())
+        }
 
-    fun exit() {
+    fun exitFromInliningOf(call: ResolvedCall<*>?) {
+        inlineCycleReporter.exitFromInliningOf(call)
         val pop = state.pop()
         state.peek()?.addAll(pop)
     }

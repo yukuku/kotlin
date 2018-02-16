@@ -197,8 +197,7 @@ class GenerationState private constructor(
         IntrinsicMethods(target, shouldUseConsistentEquals)
     }
     val samWrapperClasses: SamWrapperClasses = SamWrapperClasses(this)
-    val inlineCycleReporter: InlineCycleReporter = InlineCycleReporter(diagnostics)
-    val globalInlineContext: GlobalInlineContext = GlobalInlineContext()
+    val globalInlineContext: GlobalInlineContext = GlobalInlineContext(diagnostics)
     val mappingsClassesForWhenByEnum: MappingsClassesForWhenByEnum = MappingsClassesForWhenByEnum(this)
     val jvmRuntimeTypes: JvmRuntimeTypes = JvmRuntimeTypes(module)
     val factory: ClassFileFactory
