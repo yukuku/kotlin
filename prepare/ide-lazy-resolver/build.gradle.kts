@@ -1,7 +1,7 @@
 
 description = "Kotlin IDE Lazy Resolver"
 
-apply { plugin("java") }
+plugins { `java` }
 
 runtimeJar {
     archiveName = "kotlin-ide-common.jar"

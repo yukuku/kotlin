@@ -4,13 +4,12 @@ import com.moowork.gradle.node.npm.NpmTask
 
 plugins {
     id("com.moowork.node").version("1.2.0")
+    kotlin("jvm")
 }
 
 node {
     download = true
 }
-
-apply { plugin("kotlin") }
 
 val antLauncherJar by configurations.creating
 

@@ -1,7 +1,7 @@
 
 description = "Kotlin AllOpen Compiler Plugin"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     testRuntime(intellijDep())

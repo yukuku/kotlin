@@ -1,7 +1,7 @@
 
 description = "Annotation Processor for Kotlin"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     testCompileOnly(intellijCoreDep()) { includeJars("intellij-core") }

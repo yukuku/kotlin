@@ -1,4 +1,4 @@
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     testRuntime(intellijDep())

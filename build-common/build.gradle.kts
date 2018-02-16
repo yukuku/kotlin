@@ -1,7 +1,7 @@
 
 description = "Kotlin Build Common"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     compileOnly(project(":core:util.runtime"))

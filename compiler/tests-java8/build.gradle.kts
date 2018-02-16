@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     testCompile(projectTests(":compiler:tests-common"))

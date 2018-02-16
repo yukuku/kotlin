@@ -1,6 +1,6 @@
 description = "Kotlin Annotation Processing Runtime"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 jvmTarget = "1.6"
 

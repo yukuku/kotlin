@@ -1,7 +1,7 @@
 
 description = "Kotlin Gradle Tooling support"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 jvmTarget = "1.6"
 

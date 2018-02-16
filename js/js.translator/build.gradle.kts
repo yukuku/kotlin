@@ -2,9 +2,8 @@ import org.gradle.plugins.ide.idea.model.IdeaModel
 
 plugins {
     idea
+    kotlin("jvm")
 }
-
-apply { plugin("kotlin") }
 
 jvmTarget = "1.6"
 

@@ -1,7 +1,7 @@
 
 description = "Kotlin Android Extensions Compiler"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 val robolectricClasspath by configurations.creating
 

@@ -1,5 +1,5 @@
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     testCompile(project(":core:descriptors"))

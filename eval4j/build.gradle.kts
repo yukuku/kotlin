@@ -1,5 +1,5 @@
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     compile(projectDist(":kotlin-stdlib"))

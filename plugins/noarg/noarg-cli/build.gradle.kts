@@ -1,7 +1,7 @@
 
 description = "Kotlin NoArg Compiler Plugin"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     testRuntime(intellijDep())

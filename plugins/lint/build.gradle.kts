@@ -1,7 +1,7 @@
 
-apply {
-    plugin("kotlin")
-    plugin("java")
+plugins {
+    `java`
+    kotlin("jvm")
 }
 
 dependencies {

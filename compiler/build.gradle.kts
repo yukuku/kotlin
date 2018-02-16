@@ -3,7 +3,7 @@ import java.io.File
 import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 jvmTarget = "1.6"
 

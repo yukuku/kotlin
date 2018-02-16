@@ -3,7 +3,7 @@ import org.gradle.jvm.tasks.Jar
 
 description = "Compiler runner + daemon client"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 jvmTarget = "1.6"
 

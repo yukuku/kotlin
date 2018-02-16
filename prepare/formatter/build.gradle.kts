@@ -1,7 +1,7 @@
 
 description = "Kotlin Formatter"
 
-apply { plugin("java") }
+plugins { `java` }
 
 runtimeJar {
     archiveName = "kotlin-formatter.jar"

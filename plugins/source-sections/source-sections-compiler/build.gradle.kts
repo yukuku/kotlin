@@ -1,7 +1,7 @@
 
 description = "Kotlin SourceSections Compiler Plugin"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 
 dependencies {

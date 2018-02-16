@@ -1,6 +1,6 @@
 description = "Kotlin Android Extensions Runtime"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 jvmTarget = "1.6"
 

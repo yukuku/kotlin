@@ -1,7 +1,7 @@
 
 description = "Kotlin scripting support utilities"
 
-apply { plugin("kotlin") }
+plugins { kotlin("jvm") }
 
 dependencies {
     compile(project(":kotlin-stdlib"))
