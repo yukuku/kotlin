@@ -10575,6 +10575,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("checkUnboxingResultFromTypeVariable.kt")
+        public void testCheckUnboxingResultFromTypeVariable() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/inlineClasses/checkUnboxingResultFromTypeVariable.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("computablePropertyInsideInlineClass.kt")
         public void testComputablePropertyInsideInlineClass() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/inlineClasses/computablePropertyInsideInlineClass.kt");
