@@ -1492,6 +1492,7 @@ public class FunctionCodegen {
                                                     containingDeclaration;
         return CodegenUtilKt.hasJvmDefaultAnnotation(functionDescriptor)
                ? kind != OwnerKind.DEFAULT_IMPLS
-               : functionDescriptor.getModality() != Modality.ABSTRACT || kind != OwnerKind.DEFAULT_IMPLS;
+               : (functionDescriptor.getModality() != Modality.ABSTRACT || kind != OwnerKind.DEFAULT_IMPLS) &&
+                 (!Visibilities.isPrivate(functionDescriptor.getVisibility()) || kind != OwnerKind.IMPLEMENTATION);
     }
 }
