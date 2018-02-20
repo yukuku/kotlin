@@ -54,6 +54,12 @@ public class CompileKotlinAgainstKotlinTestGenerated extends AbstractCompileKotl
             doTest(fileName);
         }
 
+        @TestMetadata("simpleCallWithBigHierarchy.kt")
+        public void testSimpleCallWithBigHierarchy() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/simpleCallWithBigHierarchy.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("simpleCallWithHierarchy.kt")
         public void testSimpleCallWithHierarchy() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/simpleCallWithHierarchy.kt");
@@ -66,30 +72,18 @@ public class CompileKotlinAgainstKotlinTestGenerated extends AbstractCompileKotl
             doTest(fileName);
         }
 
+        @TestMetadata("simplePropWithHierarchy.kt")
+        public void testSimplePropWithHierarchy() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/simplePropWithHierarchy.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/delegation")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
         public static class Delegation extends AbstractCompileKotlinAgainstKotlinTest {
             public void testAllFilesPresentInDelegation() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/delegation"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
-            }
-
-            @TestMetadata("delegationToDefaultMethodInClass.kt")
-            public void testDelegationToDefaultMethodInClass() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/delegation/delegationToDefaultMethodInClass.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("delegationToDefaultMethodInInterface.kt")
-            public void testDelegationToDefaultMethodInInterface() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/delegation/delegationToDefaultMethodInInterface.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("delegationToDefaultMethodInInterface2.kt")
-            public void testDelegationToDefaultMethodInInterface2() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/compileKotlinAgainstKotlin/jvm8against6/delegation/delegationToDefaultMethodInInterface2.kt");
-                doTest(fileName);
             }
 
             @TestMetadata("diamond.kt")
