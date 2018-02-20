@@ -2,6 +2,7 @@
 // KOTLIN_CONFIGURATION_FLAGS: +JVM.JVM8_TARGET_WITH_DEFAULTS
 
 interface Test {
+
     var z: String
         get() = "OK"
         set(value) {}

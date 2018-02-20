@@ -52,6 +52,8 @@ import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 import org.jetbrains.org.objectweb.asm.commons.Method
 import java.util.*
 
+private val JVM_DEFAULT_FQ_NAME = FqName("kotlin.annotations.JvmDefault")
+
 fun generateIsCheck(
     v: InstructionAdapter,
     kotlinType: KotlinType,
@@ -424,3 +426,5 @@ inline fun FrameMap.evaluateOnce(
         leaveTemp(asType)
     }
 }
+
+fun CallableDescriptor.hasJvmDefaultAnnotation() = annotations.hasAnnotation(JVM_DEFAULT_FQ_NAME)

@@ -902,7 +902,7 @@ public class KotlinTypeMapper {
 
     private boolean isJvm8InterfaceWithDefaults(@NotNull ClassDescriptor ownerForDefault) {
         return isJvmInterface(ownerForDefault) &&
-               JvmCodegenUtil.isJvm8InterfaceWithDefaults(ownerForDefault, isJvm8Target, isJvm8TargetWithDefaults);
+               JvmCodegenUtil.isJvm8InterfaceWithDefaults(ownerForDefault, isJvm8Target);
     }
 
     public static boolean isAccessor(@Nullable CallableMemberDescriptor descriptor) {
