@@ -184,6 +184,28 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
         assertNoIntrinsicsMethodIsCalled("A", true);
     }
 
+    public void testAssertionForInlineClassBasedOnNonNullType() {
+        setUpEnvironment(false, false);
+
+        loadSourceAndSetupLVSettings("assertionForInlineClassBasedOnNonNullType.kt");
+
+        String text = generateToText();
+
+        assertEquals(0, StringUtil.getOccurrenceCount(text, "checkExpressionValueIsNotNull"));
+        assertEquals(5, StringUtil.getOccurrenceCount(text, "checkParameterIsNotNull"));
+    }
+
+    public void testNoAssertionForInlineClassBasedOnNullableType() {
+        setUpEnvironment(false, false);
+
+        loadSourceAndSetupLVSettings("noAssertionForInlineClassBasedOnNullableType.kt");
+
+        String text = generateToText();
+
+        assertEquals(0, StringUtil.getOccurrenceCount(text, "checkExpressionValueIsNotNull"));
+        assertEquals(0, StringUtil.getOccurrenceCount(text, "checkParameterIsNotNull"));
+    }
+
     public void testParamAssertionMessage() throws Exception {
         setUpEnvironment(false, false);
 
