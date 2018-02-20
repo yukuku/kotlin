@@ -1,17 +1,6 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
+ * that can be found in the license/LICENSE.txt file.
  */
 
 package org.jetbrains.kotlin.codegen;
@@ -21,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.backend.common.output.OutputFile;
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
+import org.jetbrains.kotlin.checkers.CompilerTestLanguageVersionSettingsKt;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
@@ -59,8 +49,9 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
         myFiles = null;
     }
 
-    private void loadSource(@NotNull String fileName) {
-        loadFileByFullPath(KotlinTestUtils.getTestDataPathBase() + "/codegen/" + getPrefix() + "/" + fileName);
+    private void loadSourceAndSetupLVSettings(@NotNull String fileName) {
+        String fileText = loadFileByFullPath(KotlinTestUtils.getTestDataPathBase() + "/codegen/" + getPrefix() + "/" + fileName);
+        CompilerTestLanguageVersionSettingsKt.setupLanguageVersionSettingsForCompilerTests(fileText, myEnvironment);
     }
 
     private void compileJava(@NotNull String fileName) {
@@ -75,7 +66,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
         compileJava("A.java");
         setUpEnvironment(disableCallAssertions, true);
 
-        loadSource("AssertionChecker.kt");
+        loadSourceAndSetupLVSettings("AssertionChecker.kt");
         generateFunction("checkAssertions").invoke(null, !disableCallAssertions);
     }
 
@@ -97,13 +88,13 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
 
     public void testNoAssertionsForKotlinFromBinary() throws Exception {
         setUpEnvironment(false, true);
-        loadSource("noAssertionsForKotlin.kt");
+        loadSourceAndSetupLVSettings("noAssertionsForKotlin.kt");
         OutputFileCollection outputFiles = generateClassesInFile();
         javaClassesOutputDirectory = new File(FileUtil.getTempDirectory(), "kotlin-classes");
         OutputUtilsKt.writeAllTo(outputFiles, javaClassesOutputDirectory);
 
         setUpEnvironment(false, true);
-        loadSource("noAssertionsForKotlinMain.kt");
+        loadSourceAndSetupLVSettings("noAssertionsForKotlinMain.kt");
 
         assertNoIntrinsicsMethodIsCalledInMyClasses(false);
     }
@@ -112,14 +103,14 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
         compileJava("doGenerateParamAssertions.java");
         setUpEnvironment(true, false);
 
-        loadSource("doGenerateParamAssertions.kt");
+        loadSourceAndSetupLVSettings("doGenerateParamAssertions.kt");
         generateFunction().invoke(null);
     }
 
     public void testDoNotGenerateParamAssertions() throws Exception {
         setUpEnvironment(true, true);
 
-        loadSource("doNotGenerateParamAssertions.kt");
+        loadSourceAndSetupLVSettings("doNotGenerateParamAssertions.kt");
 
         assertNoIntrinsicsMethodIsCalled("A", true);
     }
@@ -127,7 +118,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
     public void testNoParamAssertionForPrivateMethod() throws Exception {
         setUpEnvironment(true, false);
 
-        loadSource("noAssertionForPrivateMethod.kt");
+        loadSourceAndSetupLVSettings("noAssertionForPrivateMethod.kt");
 
         assertNoIntrinsicsMethodIsCalled("A", true);
     }
@@ -135,7 +126,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
     public void testArrayListGet() {
         setUpEnvironment(false, false);
 
-        loadSource("arrayListGet.kt");
+        loadSourceAndSetupLVSettings("arrayListGet.kt");
         String text = generateToText();
 
         assertTrue(text.contains("checkExpressionValueIsNotNull"));
@@ -146,7 +137,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
         compileJava("javaMultipleSubstitutions.java");
         setUpEnvironment(false, false);
 
-        loadSource("javaMultipleSubstitutions.kt");
+        loadSourceAndSetupLVSettings("javaMultipleSubstitutions.kt");
         String text = generateToText();
 
         assertEquals(3, StringUtil.getOccurrenceCount(text, "checkExpressionValueIsNotNull"));
@@ -156,7 +147,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
     public void testAssertionForNotNullTypeParam() {
         setUpEnvironment(false, false);
 
-        loadSource("assertionForNotNullTypeParam.kt");
+        loadSourceAndSetupLVSettings("assertionForNotNullTypeParam.kt");
 
         assertTrue(generateToText().contains("checkParameterIsNotNull"));
     }
@@ -164,7 +155,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
     public void testNoAssertionForNullableGenericMethod() {
         setUpEnvironment(false, true);
 
-        loadSource("noAssertionForNullableGenericMethod.kt");
+        loadSourceAndSetupLVSettings("noAssertionForNullableGenericMethod.kt");
 
         assertNoIntrinsicsMethodIsCalledInMyClasses(true);
     }
@@ -172,7 +163,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
     public void testNoAssertionForNullableCaptured() {
         setUpEnvironment(false, true);
 
-        loadSource("noAssertionForNullableCaptured.kt");
+        loadSourceAndSetupLVSettings("noAssertionForNullableCaptured.kt");
 
         assertNoIntrinsicsMethodIsCalledInMyClasses(true);
     }
@@ -180,7 +171,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
     public void testAssertionForNotNullCaptured() {
         setUpEnvironment(false, true);
 
-        loadSource("assertionForNotNullCaptured.kt");
+        loadSourceAndSetupLVSettings("assertionForNotNullCaptured.kt");
 
         assertTrue(generateToText().contains("checkExpressionValueIsNotNull"));
     }
@@ -188,7 +179,7 @@ public class GenerateNotNullAssertionsTest extends CodegenTestCase {
     public void testNoAssertionForNullableGenericMethodCall() {
         setUpEnvironment(false, true);
 
-        loadSource("noAssertionForNullableGenericMethodCall.kt");
+        loadSourceAndSetupLVSettings("noAssertionForNullableGenericMethodCall.kt");
 
         assertNoIntrinsicsMethodIsCalled("A", true);
     }
