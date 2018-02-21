@@ -218,10 +218,6 @@ public class FunctionCodegen {
             generateBridges(functionDescriptor);
         }
 
-        if (CodegenUtilKt.hasJvmDefaultAnnotation(functionDescriptor) && contextKind != OwnerKind.DEFAULT_IMPLS && state.getGenerateDefaultImplsForJvm8()) {
-            generateDelegateForDefaultImpl(functionDescriptor, origin.getElement());
-        }
-
         boolean staticInCompanionObject = CodegenUtilKt.isJvmStaticInCompanionObject(functionDescriptor);
         if (staticInCompanionObject) {
             ImplementationBodyCodegen parentBodyCodegen = (ImplementationBodyCodegen) memberCodegen.getParentCodegen();
