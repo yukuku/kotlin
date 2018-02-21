@@ -82,7 +82,9 @@ class KotlinFilterLexer(private val occurrenceConsumer: OccurrenceConsumer): Bas
 
             KtTokens.IDENTIFIER -> {
                  if (myDelegate.tokenText.startsWith("`")) {
-                     scanWordsInToken(UsageSearchContext.IN_CODE.toInt(), false, false)
+                     val start = tokenStart + 1
+                     val end = if (myDelegate.tokenText.endsWith("`")) tokenEnd - 1 else tokenEnd
+                     occurrenceConsumer.addOccurrence(bufferSequence, null, start, end, UsageSearchContext.IN_CODE.toInt())
                  }
                  else {
                      addOccurrenceInToken(UsageSearchContext.IN_CODE.toInt())

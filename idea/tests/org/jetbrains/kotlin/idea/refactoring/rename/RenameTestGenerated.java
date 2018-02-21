@@ -919,6 +919,12 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest(fileName);
     }
 
+    @TestMetadata("renameKotlinMethodWithEscapedNameAndDollar/renameKotlinMethodWithEscapedNameAndDollar.test")
+    public void testRenameKotlinMethodWithEscapedNameAndDollar_RenameKotlinMethodWithEscapedNameAndDollar() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameKotlinMethodWithEscapedNameAndDollar/renameKotlinMethodWithEscapedNameAndDollar.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("renameKotlinMultifileFacadeClassWithJvmNameByRef/renameKotlinMultifileFacadeClassWithJvmName.test")
     public void testRenameKotlinMultifileFacadeClassWithJvmNameByRef_RenameKotlinMultifileFacadeClassWithJvmName() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameKotlinMultifileFacadeClassWithJvmNameByRef/renameKotlinMultifileFacadeClassWithJvmName.test");
