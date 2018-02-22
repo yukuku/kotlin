@@ -28,6 +28,9 @@ sourceSets {
     "test" {}
 }
 
+val jar: Jar by tasks
+jar.enabled = false
+
 runtimeJar(task<ShadowJar>("shadowJar")) {
     from(the<JavaPluginConvention>().sourceSets.getByName("main").output)
     from(fatJarContents)

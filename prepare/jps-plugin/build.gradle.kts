@@ -10,7 +10,6 @@ val projectsToShadow = listOf(
         ":kotlin-build-common",
         ":compiler:cli-common",
         ":kotlin-compiler-runner",
-        ":kotlin-daemon-client",
         ":compiler:daemon-common",
         ":core:descriptors",
         ":core:descriptors.jvm",
@@ -27,6 +26,7 @@ dependencies {
     projectsToShadow.forEach {
         fatJarContents(project(it)) { isTransitive = false }
     }
+    fatJarContents(projectRuntimeJar(":kotlin-daemon-client"))
 }
 
 runtimeJar<ShadowJar>(task<ShadowJar>("jar")) {
