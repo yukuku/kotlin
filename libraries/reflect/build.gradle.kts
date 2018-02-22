@@ -11,15 +11,6 @@ import java.io.DataOutputStream
 
 description = "Kotlin Full Reflection Library"
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath("net.sf.proguard:proguard-gradle:${property("versions.proguard")}")
-    }
-}
-
 plugins { java }
 
 callGroovy("configureJavaOnlyJvm6Project", this)
