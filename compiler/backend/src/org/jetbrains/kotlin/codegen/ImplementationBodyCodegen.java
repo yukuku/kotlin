@@ -899,6 +899,10 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                 (properFieldVisibilityFlag & (ACC_PRIVATE | ACC_PROTECTED)) != 0;
         int fieldAccessFlags = ACC_PUBLIC | ACC_STATIC | ACC_FINAL;
         if (properVisibilityForCompanionObjectInstanceField) {
+            // Do not generate 'public private' or 'public protected' field, otherwise, it leads to unloadable class.
+            if ((properFieldVisibilityFlag & (ACC_PRIVATE | ACC_PROTECTED)) != 0) {
+                fieldAccessFlags ^= ACC_PUBLIC;
+            }
             fieldAccessFlags |= properFieldVisibilityFlag;
         }
         if (fieldShouldBeDeprecated) {
