@@ -20,6 +20,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.SmartList
 import org.jetbrains.kotlin.backend.common.COROUTINE_SUSPENDED_NAME
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.config.LanguageFeature
+import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -33,6 +35,7 @@ import org.jetbrains.kotlin.js.translate.intrinsic.functions.basic.FunctionIntri
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils.simpleReturnFunction
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasOrInheritsParametersWithDefaultValue
@@ -262,4 +265,13 @@ fun TranslationContext.getPrecisePrimitiveType(expression: KtExpression): Kotlin
 
 fun TranslationContext.getPrecisePrimitiveTypeNotNull(expression: KtExpression): KotlinType {
     return getPrecisePrimitiveType(expression) ?: throw IllegalStateException("Type must be not null for " + expression)
+}
+
+fun TranslationContext.getPrimitiveNumericComparisonInfo(expression: KtExpression) =
+    config.configuration.languageVersionSettings.let {
+        if (it.supportsFeature(LanguageFeature.ProperIeee754Comparisons)) {
+            bindingContext().get(BindingContext.PRIMITIVE_NUMERIC_COMPARISON_INFO, expression)
+        } else {
+            null
+        }
 }

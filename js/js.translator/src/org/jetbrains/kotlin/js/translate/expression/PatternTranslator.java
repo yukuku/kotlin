@@ -34,7 +34,6 @@ import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
 import org.jetbrains.kotlin.js.translate.general.Translation;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.ArrayFIF;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.TopLevelFIF;
-import org.jetbrains.kotlin.js.translate.intrinsic.operation.BinaryOperationIntrinsicsKt;
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator;
 import org.jetbrains.kotlin.js.translate.utils.*;
 import org.jetbrains.kotlin.name.Name;
@@ -43,6 +42,7 @@ import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.psi.KtIsExpression;
 import org.jetbrains.kotlin.psi.KtTypeReference;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
+import org.jetbrains.kotlin.resolve.checkers.PrimitiveNumericComparisonInfo;
 import org.jetbrains.kotlin.types.KotlinType;
 
 import java.util.Collections;
@@ -271,25 +271,25 @@ public final class PatternTranslator extends AbstractTranslator {
 
     @NotNull
     public JsExpression translateExpressionPattern(
-            @NotNull KotlinType type,
+            @NotNull KtExpression subjectExpression,
             @NotNull JsExpression expressionToMatch,
             @NotNull KtExpression patternExpression
     ) {
-        JsExpression expressionToMatchAgainst = translateExpressionForExpressionPattern(patternExpression);
+        PrimitiveNumericComparisonInfo ieeeInfo = UtilsKt.getPrimitiveNumericComparisonInfo(context(), patternExpression);
 
-        Pair<KotlinType, KotlinType> ieeeInfo = BinaryOperationIntrinsicsKt.binaryOperationTypes(patternExpression, context());
-
-        EqualityType matchEquality, patternEquality;
-
+        KotlinType subjectType, patternType;
         if (ieeeInfo != null) {
-            matchEquality = equalityType(ieeeInfo.component1());
-            patternEquality = equalityType(ieeeInfo.component2());
+            subjectType = ieeeInfo.getLeftType();
+            patternType = ieeeInfo.getRightType();
         } else {
-            KotlinType patternType = UtilsKt.getPrecisePrimitiveTypeNotNull(context(), patternExpression);
-
-            matchEquality = equalityType(type);
-            patternEquality = equalityType(patternType);
+            subjectType = UtilsKt.getPrecisePrimitiveTypeNotNull(context(), subjectExpression);
+            patternType = UtilsKt.getPrecisePrimitiveTypeNotNull(context(), patternExpression);
         }
+
+        EqualityType matchEquality = equalityType(subjectType);
+        EqualityType patternEquality = equalityType(patternType);
+
+        JsExpression expressionToMatchAgainst = translateExpressionForExpressionPattern(patternExpression);
 
         if (matchEquality == EqualityType.PRIMITIVE && patternEquality == EqualityType.PRIMITIVE) {
             return equality(expressionToMatch, expressionToMatchAgainst);

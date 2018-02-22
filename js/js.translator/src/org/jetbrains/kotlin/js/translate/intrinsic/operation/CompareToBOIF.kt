@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.js.backend.ast.JsBinaryOperation
 import org.jetbrains.kotlin.js.backend.ast.JsExpression
 import org.jetbrains.kotlin.js.backend.ast.JsIntLiteral
-import org.jetbrains.kotlin.js.patterns.PatternBuilder.pattern
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.operation.OperatorTable
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
@@ -31,7 +30,6 @@ import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
-import org.jetbrains.kotlin.types.typeUtil.isChar
 
 object CompareToBOIF : BinaryOperationIntrinsicFactory {
     private object CompareToIntrinsic : AbstractBinaryOperationIntrinsic() {
@@ -68,10 +66,11 @@ object CompareToBOIF : BinaryOperationIntrinsicFactory {
     override fun getIntrinsic(descriptor: FunctionDescriptor, leftType: KotlinType?, rightType: KotlinType?): BinaryOperationIntrinsic? {
         if (descriptor.isDynamic()) return CompareToIntrinsic
 
-        if (!KotlinBuiltIns.isBuiltIn(descriptor)) return null
-
         if (leftType == null || rightType == null) return null
 
+        if (!KotlinBuiltIns.isBuiltIn(descriptor)) return null
+
+        // Types may be nullable if properIeeeComparisons are switched off, e.g. fun foo(a: Double?) = a != null && a < 0.0
         return when {
             KotlinBuiltIns.isCharOrNullableChar(rightType) -> CompareToCharIntrinsic
             KotlinBuiltIns.isCharOrNullableChar(leftType) -> CompareCharToPrimitiveIntrinsic

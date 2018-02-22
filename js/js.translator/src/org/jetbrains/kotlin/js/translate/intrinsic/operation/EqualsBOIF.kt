@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.js.translate.intrinsic.operation
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.js.backend.ast.JsBinaryOperation
 import org.jetbrains.kotlin.js.backend.ast.JsBinaryOperator
@@ -36,9 +37,13 @@ import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
 import org.jetbrains.kotlin.types.isDynamic
 import org.jetbrains.kotlin.types.typeUtil.makeNullable
+import java.util.*
 
 object EqualsBOIF : BinaryOperationIntrinsicFactory {
     private object EqualsIntrinsic : AbstractBinaryOperationIntrinsic() {
+
+        private val JS_NUMBER_PRIMITIVES =
+            EnumSet.of(PrimitiveType.BYTE, PrimitiveType.SHORT, PrimitiveType.INT, PrimitiveType.DOUBLE, PrimitiveType.FLOAT)
 
         override fun apply(expression: KtBinaryExpression, left: JsExpression, right: JsExpression, context: TranslationContext): JsExpression {
             val isNegated = expression.isNegated()
@@ -52,13 +57,30 @@ object EqualsBOIF : BinaryOperationIntrinsicFactory {
 
             val (leftKotlinType, rightKotlinType) = binaryOperationTypes(expression, context)
 
-            if (KotlinBuiltIns.isPrimitiveTypeOrNullablePrimitiveType(leftKotlinType!!) && KotlinBuiltIns.isPrimitiveTypeOrNullablePrimitiveType(rightKotlinType!!) &&
-                (!KotlinBuiltIns.isLongOrNullableLong(leftKotlinType) || !KotlinBuiltIns.isLongOrNullableLong(rightKotlinType))
-            ) {
-                val coercedLeft = context.coerceAndConvertLong(left, leftKotlinType)
-                val coercedRight = context.coerceAndConvertLong(right, rightKotlinType)
-                return JsBinaryOperation(if (isNegated) JsBinaryOperator.REF_NEQ else JsBinaryOperator.REF_EQ, coercedLeft, coercedRight)
+            val leftType = leftKotlinType?.let { KotlinBuiltIns.getPrimitiveType(it) }
+            val rightType = rightKotlinType?.let { KotlinBuiltIns.getPrimitiveType(it) }
+
+            if (leftType != null && rightType != null && (
+                        leftType in JS_NUMBER_PRIMITIVES && rightType in JS_NUMBER_PRIMITIVES ||
+                        leftType in JS_NUMBER_PRIMITIVES && rightType == PrimitiveType.LONG ||
+                        leftType == PrimitiveType.LONG && rightType in JS_NUMBER_PRIMITIVES ||
+                        leftType == PrimitiveType.BOOLEAN && rightType == PrimitiveType.BOOLEAN ||
+                        leftType == PrimitiveType.CHAR && rightType == PrimitiveType.CHAR
+            )) {
+                val useEq = leftType == PrimitiveType.LONG || rightType == PrimitiveType.LONG
+
+                val operator = when {
+                    useEq && isNegated -> JsBinaryOperator.NEQ
+                    useEq && !isNegated -> JsBinaryOperator.EQ
+                    !useEq && isNegated -> JsBinaryOperator.REF_NEQ
+                    else /* !useEq && !isNegated */ -> JsBinaryOperator.REF_EQ
+                }
+
+                val coercedLeft = TranslationUtils.coerce(context, left, leftKotlinType)
+                val coercedRight = TranslationUtils.coerce(context, right, rightKotlinType)
+                return JsBinaryOperation(operator, coercedLeft, coercedRight)
             }
+
             val resolvedCall = expression.getResolvedCall(context.bindingContext())
             val appliedToDynamic =
                 resolvedCall != null &&
@@ -74,15 +96,6 @@ object EqualsBOIF : BinaryOperationIntrinsicFactory {
             val coercedRight = TranslationUtils.coerce(context, right, anyType)
             val result = TopLevelFIF.KOTLIN_EQUALS.apply(coercedLeft, listOf(coercedRight), context)
             return if (isNegated) JsAstUtils.not(result) else result
-        }
-
-        private fun TranslationContext.coerceAndConvertLong(expression: JsExpression, type: KotlinType): JsExpression {
-            val number = if (KotlinBuiltIns.isLongOrNullableLong(type)) {
-                JsAstUtils.longToNumberOrNull(expression)
-            } else {
-                expression
-            }
-            return TranslationUtils.coerce(this, number, type)
         }
     }
 

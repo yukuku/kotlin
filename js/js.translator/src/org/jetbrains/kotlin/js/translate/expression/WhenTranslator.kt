@@ -29,7 +29,6 @@ import org.jetbrains.kotlin.js.translate.general.Translation
 import org.jetbrains.kotlin.js.translate.operation.InOperationTranslator
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils.not
-import org.jetbrains.kotlin.js.translate.utils.getPrecisePrimitiveType
 import org.jetbrains.kotlin.js.translate.utils.mutator.CoercionMutator
 import org.jetbrains.kotlin.js.translate.utils.mutator.LastExpressionMutator
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -325,10 +324,8 @@ private constructor(private val whenExpression: KtWhenExpression, context: Trans
         val patternTranslator = Translation.patternTranslator(context)
         return if (expressionToMatch == null) {
             patternTranslator.translateExpressionForExpressionPattern(patternExpression)
-        }
-        else {
-            val type = context().getPrecisePrimitiveType(whenExpression.subjectExpression!!)!!
-            patternTranslator.translateExpressionPattern(type, expressionToMatch, patternExpression)
+        } else {
+            patternTranslator.translateExpressionPattern(whenExpression.subjectExpression!!, expressionToMatch, patternExpression)
         }
     }
 

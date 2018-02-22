@@ -16,18 +16,15 @@
 
 package org.jetbrains.kotlin.js.translate.intrinsic.operation
 
-import org.jetbrains.kotlin.config.LanguageFeature
-import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.js.backend.ast.JsExpression
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.utils.BindingUtils.getCallableDescriptorForOperationExpression
 import org.jetbrains.kotlin.js.translate.utils.PsiUtils.getOperationToken
 import org.jetbrains.kotlin.js.translate.utils.getPrecisePrimitiveType
+import org.jetbrains.kotlin.js.translate.utils.getPrimitiveNumericComparisonInfo
 import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.psi.KtBinaryExpression
-import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.types.KotlinType
 
 interface BinaryOperationIntrinsic {
@@ -74,21 +71,11 @@ class BinaryOperationIntrinsics {
 
 // Takes into account smart-casts (needed for IEEE 754 comparisons)
 fun binaryOperationTypes(expression: KtBinaryExpression, context: TranslationContext): Pair<KotlinType?, KotlinType?> {
-    return binaryOperationTypes(expression as KtExpression, context) ?:
-            expression.left?.let { context.getPrecisePrimitiveType(it) } to expression.right?.let { context.getPrecisePrimitiveType(it) }
-}
-
-// Takes into account smart-casts (needed for IEEE 754 comparisons)
-fun binaryOperationTypes(expression: KtExpression, context: TranslationContext): Pair<KotlinType, KotlinType>? {
-    val languageVersionSettings = context.config.configuration.languageVersionSettings
-    if (languageVersionSettings.supportsFeature(LanguageFeature.ProperIeee754Comparisons)) {
-        context.bindingContext().get(BindingContext.PRIMITIVE_NUMERIC_COMPARISON_INFO, expression)?.let { info ->
-            // TODO What about info.comparisonType
-            return info.leftType to info.rightType
-        }
+    val info = context.getPrimitiveNumericComparisonInfo(expression)
+    if (info != null) {
+        return info.leftType to info.rightType
     }
-
-    return null
+    return expression.left?.let { context.getPrecisePrimitiveType(it) } to expression.right?.let { context.getPrecisePrimitiveType(it) }
 }
 
 private data class IntrinsicKey(
