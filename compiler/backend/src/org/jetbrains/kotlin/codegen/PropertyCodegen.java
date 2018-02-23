@@ -335,7 +335,7 @@ public class PropertyCodegen {
         if (annotations.getAllAnnotations().isEmpty()) return;
 
         DeclarationDescriptor contextDescriptor = context.getContextDescriptor();
-        if (!isInterface(contextDescriptor) || FunctionCodegen.processInterfaceMethod(descriptor, kind)) {
+        if (!isInterface(contextDescriptor) || FunctionCodegen.processInterfaceMethod(descriptor, kind, false)) {
             memberCodegen.generateSyntheticAnnotationsMethod(
                     descriptor, getSyntheticMethodSignature(descriptor), annotations, AnnotationUseSiteTarget.PROPERTY
             );

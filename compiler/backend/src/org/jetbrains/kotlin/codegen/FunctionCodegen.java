@@ -53,7 +53,6 @@ import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterSignature
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature;
 import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.kotlin.types.TypeUtils;
-import org.jetbrains.kotlin.types.UtilsKt;
 import org.jetbrains.kotlin.utils.StringsKt;
 import org.jetbrains.org.objectweb.asm.*;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
@@ -175,7 +174,7 @@ public class FunctionCodegen {
     ) {
         OwnerKind contextKind = methodContext.getContextKind();
         DeclarationDescriptor containingDeclaration = functionDescriptor.getContainingDeclaration();
-        if (isInterface(containingDeclaration) && !processInterfaceMethod(functionDescriptor, contextKind)) return;
+        if (isInterface(containingDeclaration) && !processInterfaceMethod(functionDescriptor, contextKind, false)) return;
 
         boolean hasSpecialBridge = hasSpecialBridgeMethod(functionDescriptor);
         JvmMethodGenericSignature jvmSignature = strategy.mapMethodSignature(functionDescriptor, typeMapper, contextKind, hasSpecialBridge);
@@ -1064,7 +1063,7 @@ public class FunctionCodegen {
         DeclarationDescriptor contextClass = owner.getContextDescriptor().getContainingDeclaration();
 
         if (isInterface(contextClass) &&
-            !processInterfaceMethod(functionDescriptor, kind)) {
+            !processInterfaceMethod(functionDescriptor, kind, true)) {
             return;
         }
 
@@ -1482,7 +1481,8 @@ public class FunctionCodegen {
 
     public static boolean processInterfaceMethod(
             @NotNull CallableMemberDescriptor memberDescriptor,
-            @NotNull OwnerKind kind
+            @NotNull OwnerKind kind,
+            boolean isDefault
     ) {
         DeclarationDescriptor containingDeclaration = memberDescriptor.getContainingDeclaration();
         assert isInterface(containingDeclaration) : "'processInterfaceMethod' method should be called only for interfaces, but: " +
@@ -1493,7 +1493,7 @@ public class FunctionCodegen {
         } else {
             switch (kind) {
                 case DEFAULT_IMPLS: return true;
-                case IMPLEMENTATION: return !Visibilities.isPrivate(memberDescriptor.getVisibility());
+                case IMPLEMENTATION: return !Visibilities.isPrivate(memberDescriptor.getVisibility()) && !isDefault;
                 default: return false;
             }
         }
