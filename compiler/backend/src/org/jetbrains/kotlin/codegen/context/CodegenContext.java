@@ -623,6 +623,11 @@ public abstract class CodegenContext<T extends DeclarationDescriptor> {
         if (descriptorContext == null) {
             return descriptor;
         }
+
+        if (CodegenUtilKt.hasJvmDefaultAnnotation(descriptor) && descriptorContext instanceof DefaultImplsClassContext) {
+            descriptorContext = ((DefaultImplsClassContext) descriptorContext).getInterfaceContext();
+        }
+
         if (descriptor instanceof PropertyDescriptor) {
             PropertyDescriptor propertyDescriptor = (PropertyDescriptor) descriptor;
             int propertyAccessFlag = getVisibilityAccessFlag(descriptor);

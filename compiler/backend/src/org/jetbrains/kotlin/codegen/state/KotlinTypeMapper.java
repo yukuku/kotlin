@@ -803,7 +803,13 @@ public class KotlinTypeMapper {
                     FunctionDescriptor originalDescriptor = descriptor.getOriginal();
                     signature = mapSignatureSkipGeneric(originalDescriptor, OwnerKind.DEFAULT_IMPLS);
                     returnKotlinType = originalDescriptor.getReturnType();
-                    owner = mapDefaultImpls(currentOwner);
+                    if (descriptor instanceof AccessorForFunctionDescriptor &&
+                        CodegenUtilKt.hasJvmDefaultAnnotation(((AccessorForFunctionDescriptor) descriptor).getCalleeDescriptor())) {
+                        owner = mapClass(currentOwner);
+                    }
+                    else {
+                        owner = mapDefaultImpls(currentOwner);
+                    }
                 }
             }
             else {
