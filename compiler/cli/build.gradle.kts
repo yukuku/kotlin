@@ -19,7 +19,7 @@ dependencies {
     compile(project(":js:js.dce"))
     compile(commonDep("org.fusesource.jansi", "jansi"))
     compile(commonDep("org.jline", "jline"))
-    compile(files("${System.getProperty("java.home")}/../lib/tools.jar"))
+    compileOnly(files("${System.getProperty("java.home")}/../lib/tools.jar"))
     compileOnly(intellijCoreDep()) { includeJars("intellij-core") }
     compileOnly(intellijDep()) { includeIntellijCoreJarDependencies(project) }
 
